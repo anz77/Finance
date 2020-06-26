@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  Finance
 //
-//  Created by Andrii Zuiok on 23.06.2020.
+//  Created by Andrii Zuiok on 18.05.2020.
 //  Copyright © 2020 Andrii Zuiok. All rights reserved.
 //
 
@@ -10,11 +10,34 @@ import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
+    
 
+    let defaultLists = [
+        SymbolsList(name: "EQUITY", symbolsArray: ["AAPL", "NVDA", "FB", "NFLX", "AMZN"], isActive: true),
+        SymbolsList(name: "CRYPTOCURRENCY", symbolsArray: ["BTC-USD", "BTCUSD=X"], isActive: true),
+        SymbolsList(name: "INDEXES", symbolsArray: ["^DJI"], isActive: true),
+        SymbolsList(name: "ANOTHER", symbolsArray: ["UX=F", "UAHRUX=X"], isActive: true)
+    ]
+    
+    func isAppAlreadyLaunchedOnce() -> Bool {
+        let defaults = UserDefaults.standard
+
+        if defaults.string(forKey: "isAppAlreadyLaunchedOnce") != nil {
+            //debugPrint("App already launched sometimes")
+            return true
+        } else {
+            defaults.set(true, forKey: "isAppAlreadyLaunchedOnce")
+            //debugPrint("App launched first time")
+            return false
+        }
+    }
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        
+        if !isAppAlreadyLaunchedOnce() { storeDefaultsFromSymbolLists(defaultLists) }
+        
+    
         return true
     }
 
