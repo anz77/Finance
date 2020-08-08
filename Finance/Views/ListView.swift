@@ -67,7 +67,7 @@ struct ListView: View {
                     Button(action: {
                         
                         self.detailIsActive = true
-                        let detailModel = ChartViewModel(withSymbol: symbol, isDetailViewModel: true, internetChecker: self.mainViewModel.internetChecker)
+                        let detailModel = DetailChartViewModel(withSymbol: symbol, internetChecker: self.mainViewModel.internetChecker)
                         detailModel.fundamental = self.mainViewModel.modelWithId(symbol).fundamental
                         self.mainViewModel.detailViewModel = detailModel
                     }) {

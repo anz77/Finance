@@ -43,7 +43,6 @@ struct MainView: View {
                             .font(.headline)
                             .foregroundColor(Color(.systemYellow))
                             
-                        
                         Spacer()
                         
                     }
@@ -99,7 +98,7 @@ struct MainView: View {
                             VStack{
                                 if self.detailIsActive == true {
                                     if self.mainViewModel.detailViewModel != nil {
-                                        DetailChartView(viewModel: self.mainViewModel.detailViewModel ?? ChartViewModel(withSymbol: nil, isDetailViewModel: true, internetChecker: self.mainViewModel.internetChecker))
+                                        DetailChartView(viewModel: self.mainViewModel.detailViewModel ?? DetailChartViewModel(withSymbol: nil, internetChecker: self.mainViewModel.internetChecker))
                                             .onAppear {
                                                 if self.mainViewModel.internetChecker {
                                                     self.mainViewModel.chartViewModels.forEach{ //$0.stopTimers()

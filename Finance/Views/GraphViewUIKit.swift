@@ -9,11 +9,11 @@ import UIKit
 import SwiftUI
 
 
-class GraphView: UIView {
-    @ObservedObject var viewModel: ChartViewModel
+class GraphView<ViewModel>: UIView where ViewModel: ChartViewProtocol {
+    @ObservedObject var viewModel: ViewModel
     var lineWidth: CGFloat = 2
     
-    init(chartViewModel: ObservedObject<ChartViewModel>) {
+    init(chartViewModel: ObservedObject<ViewModel>) {
         _viewModel = chartViewModel
         super.init(frame: CGRect.zero)
     }
@@ -165,8 +165,8 @@ class GraphView: UIView {
         }
 }
 
-struct GraphViewUIKit: UIViewRepresentable {
-    @ObservedObject var viewModel: ChartViewModel
+struct GraphViewUIKit<ViewModel>: UIViewRepresentable where ViewModel: ChartViewProtocol {
+    @ObservedObject var viewModel: ViewModel
  
     func makeUIView(context: UIViewRepresentableContext<GraphViewUIKit>) -> UIView {
         let graphView = GraphView(chartViewModel: _viewModel)
@@ -181,6 +181,6 @@ struct GraphViewUIKit: UIViewRepresentable {
 
 struct GraphViewUIKit_Previews: PreviewProvider {
     static var previews: some View {
-        GraphViewUIKit(viewModel: ChartViewModel(withJSON: "AAPL"))
+        GraphViewUIKit(viewModel: DetailChartViewModel(withJSON: "AAPL"))
     }
 }

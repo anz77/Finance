@@ -14,7 +14,7 @@ struct DetailChartView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
     @EnvironmentObject var mainViewModel: MainViewModel
-    @ObservedObject var viewModel: ChartViewModel
+    @ObservedObject var viewModel: DetailChartViewModel
     @State var indicatorViewIsVisible: Bool = false
     @State var timeStampIndex: Int?
     @State var rssIsActive: Bool = false
@@ -97,7 +97,10 @@ struct DetailChartView: View {
                                                 Button(action: {
                                                     guard let symbol = self.viewModel.symbol else {return}
                                                     self.mainViewModel.symbolsLists[index].symbolsArray.append(symbol)
-                                                    self.mainViewModel.chartViewModels.append(self.viewModel)
+                                                    
+                                                    let viewModel = ChartViewModel(withSymbol: symbol, isDetailViewModel: false)
+                                                    viewModel.fundamental = self.viewModel.fundamental
+                                                    self.mainViewModel.chartViewModels.append(viewModel)
                                                     self.storeSymbol.toggle()
                                                 }) {
                                                     Text(self.mainViewModel.symbolsLists[index].name)
@@ -484,7 +487,7 @@ struct DetailChartView: View {
 
 struct DetailChartView_Previews: PreviewProvider {
     static var previews: some View {
-        DetailChartView(viewModel: ChartViewModel(withJSON: "AAPL")/*, active: .constant(true)*/).environmentObject(MainViewModel(from: "AAPL"))
+        DetailChartView(viewModel: DetailChartViewModel(withJSON: "AAPL")/*, active: .constant(true)*/).environmentObject(MainViewModel(from: "AAPL"))
         .environment(\.colorScheme, .dark)
     }
 }

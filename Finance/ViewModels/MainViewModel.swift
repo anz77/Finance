@@ -39,7 +39,7 @@ final class MainViewModel: ObservableObject, Identifiable {
         }
     }
     
-    var detailViewModel: ChartViewModel?
+    var detailViewModel: DetailChartViewModel?
     
     var currentRssUrl: URL?
     

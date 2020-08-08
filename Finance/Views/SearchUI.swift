@@ -228,7 +228,7 @@ class SearchViewController: UIViewController {
 extension SearchViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let detailModel = ChartViewModel(withSymbol: searchedResults[indexPath.row].symbol, isDetailViewModel: true, internetChecker: self.mainViewModel.internetChecker)
+        let detailModel = DetailChartViewModel(withSymbol: searchedResults[indexPath.row].symbol, internetChecker: self.mainViewModel.internetChecker)
         self.mainViewModel.detailViewModel = detailModel
         self.detailIsActive = true
         self.isSearchMode = false

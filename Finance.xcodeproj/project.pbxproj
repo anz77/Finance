@@ -10,6 +10,8 @@
 		B254D10324B72FE900487DD5 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B254D10224B72FE900487DD5 /* SettingsView.swift */; };
 		B25E09CC24AC742300FB6EEC /* SearchUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B25E09CB24AC742300FB6EEC /* SearchUI.swift */; };
 		B26E1FF024D717FF0021A336 /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26E1FEF24D717FF0021A336 /* ActivityIndicator.swift */; };
+		B2A08F2124DE980600F861E4 /* DetailChartViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A08F2024DE980600F861E4 /* DetailChartViewModel.swift */; };
+		B2A08F2324DE983D00F861E4 /* ChartViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A08F2224DE983D00F861E4 /* ChartViewProtocol.swift */; };
 		B2D575C424D9C96500B9CA7E /* ListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D575C324D9C96500B9CA7E /* ListView.swift */; };
 		B2EA71F324BE04710064E493 /* Currency.json in Resources */ = {isa = PBXBuildFile; fileRef = B2EA71F224BE04710064E493 /* Currency.json */; };
 		B2F9847424A1E6A500A4A537 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F9847324A1E6A500A4A537 /* AppDelegate.swift */; };
@@ -66,6 +68,8 @@
 		B254D10224B72FE900487DD5 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		B25E09CB24AC742300FB6EEC /* SearchUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchUI.swift; sourceTree = "<group>"; };
 		B26E1FEF24D717FF0021A336 /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
+		B2A08F2024DE980600F861E4 /* DetailChartViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailChartViewModel.swift; sourceTree = "<group>"; };
+		B2A08F2224DE983D00F861E4 /* ChartViewProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartViewProtocol.swift; sourceTree = "<group>"; };
 		B2D575C324D9C96500B9CA7E /* ListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListView.swift; sourceTree = "<group>"; };
 		B2EA71F224BE04710064E493 /* Currency.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Currency.json; sourceTree = "<group>"; };
 		B2F9847024A1E6A500A4A537 /* Finance.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Finance.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -233,7 +237,9 @@
 		B2F984C924A1E83100A4A537 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				B2A08F2224DE983D00F861E4 /* ChartViewProtocol.swift */,
 				B2F984C624A1E82C00A4A537 /* ChartViewModel.swift */,
+				B2A08F2024DE980600F861E4 /* DetailChartViewModel.swift */,
 				B2F984C524A1E82B00A4A537 /* MainViewModel.swift */,
 			);
 			path = ViewModels;
@@ -372,9 +378,11 @@
 				B2F984DC24A1E85400A4A537 /* SearchBar.swift in Sources */,
 				B254D10324B72FE900487DD5 /* SettingsView.swift in Sources */,
 				B2F984B124A1E7C700A4A537 /* Quote.swift in Sources */,
+				B2A08F2324DE983D00F861E4 /* ChartViewProtocol.swift in Sources */,
 				B2F984DA24A1E85400A4A537 /* TimeMarkersView.swift in Sources */,
 				B2F984C124A1E80500A4A537 /* WebService.swift in Sources */,
 				B2F984DE24A1E85400A4A537 /* WebView.swift in Sources */,
+				B2A08F2124DE980600F861E4 /* DetailChartViewModel.swift in Sources */,
 				B2F984C324A1E80500A4A537 /* API.swift in Sources */,
 				B2F984B224A1E7C700A4A537 /* XMLPublisher.swift in Sources */,
 				B2F984E624A1E85400A4A537 /* PriceMarkersView.swift in Sources */,

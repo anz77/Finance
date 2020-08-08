@@ -52,7 +52,7 @@ struct StatisticsView: View {
 
 
 struct KeyStatisticsView: View {
-    @ObservedObject var viewModel: ChartViewModel
+    @ObservedObject var viewModel: DetailChartViewModel
     
     var quote: FundamentalQuote? {
          viewModel.fundamental?.optionChain?.result?.first?.quote ?? nil
@@ -282,6 +282,6 @@ struct KeyStatisticsView: View {
 
 struct KeyStatisticsView_Previews: PreviewProvider {
     static var previews: some View {
-        KeyStatisticsView(viewModel: ChartViewModel(withJSON: "AAPL"))
+        KeyStatisticsView(viewModel: DetailChartViewModel(withJSON: "AAPL"))
     }
 }

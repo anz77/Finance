@@ -16,7 +16,7 @@ struct IndicatorView : View {
     @Binding var indicatorViewIsVisible: Bool
     @Binding var timeStampIndex: Int?
     
-    @ObservedObject var viewModel: ChartViewModel
+    @ObservedObject var viewModel: DetailChartViewModel
     
     var timeStamp: [Int] { self.viewModel.chart?.chart?.result?.first??.timestamp ?? [] }
     var meta: Meta? { self.viewModel.chart?.chart?.result?.first??.meta }
@@ -97,7 +97,7 @@ struct IndicatorView : View {
 struct IndicatorView_Previews : PreviewProvider {
     static var previews: some View {
         ZStack {
-            IndicatorView(indicatorViewIsVisible: .constant(false), timeStampIndex: .constant(0), viewModel: ChartViewModel(withJSON: "BTCUSD"))
+            IndicatorView(indicatorViewIsVisible: .constant(false), timeStampIndex: .constant(0), viewModel: DetailChartViewModel(withJSON: "BTCUSD"))
         }
             .colorScheme(.dark)
     }

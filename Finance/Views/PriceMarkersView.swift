@@ -10,7 +10,7 @@ import SwiftUI
 
 struct PriceMarkersView: View {
     
-    @ObservedObject var viewModel: ChartViewModel
+    @ObservedObject var viewModel: DetailChartViewModel
     
     var body: some View {
         
@@ -97,6 +97,6 @@ struct PriceMarkersView: View {
 
 struct PriceMarkersView_Previews: PreviewProvider {
     static var previews: some View {
-        PriceMarkersView(viewModel: ChartViewModel(withJSON: "AAPL"))
+        PriceMarkersView(viewModel: DetailChartViewModel(withJSON: "AAPL"))
     }
 }

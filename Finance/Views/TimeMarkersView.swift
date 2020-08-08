@@ -11,7 +11,7 @@ import SwiftUI
 struct TimeMarkersView: View {
     
     
-    @ObservedObject var viewModel: ChartViewModel
+    @ObservedObject var viewModel: DetailChartViewModel
     
     var body: some View {
         GeometryReader { geometry in
@@ -71,6 +71,6 @@ struct TimeMarkersView: View {
 
 struct TimeMarkersView_Previews: PreviewProvider {
     static var previews: some View {
-        TimeMarkersView(viewModel: ChartViewModel(withJSON: "AAPL"))
+        TimeMarkersView(viewModel: DetailChartViewModel(withJSON: "AAPL"))
     }
 }
