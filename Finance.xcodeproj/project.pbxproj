@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B254D10324B72FE900487DD5 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B254D10224B72FE900487DD5 /* SettingsView.swift */; };
+		B25E09CC24AC742300FB6EEC /* SearchUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B25E09CB24AC742300FB6EEC /* SearchUI.swift */; };
+		B26E1FF024D717FF0021A336 /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26E1FEF24D717FF0021A336 /* ActivityIndicator.swift */; };
+		B2D575C424D9C96500B9CA7E /* ListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D575C324D9C96500B9CA7E /* ListView.swift */; };
+		B2EA71F324BE04710064E493 /* Currency.json in Resources */ = {isa = PBXBuildFile; fileRef = B2EA71F224BE04710064E493 /* Currency.json */; };
 		B2F9847424A1E6A500A4A537 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F9847324A1E6A500A4A537 /* AppDelegate.swift */; };
 		B2F9847624A1E6A500A4A537 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2F9847524A1E6A500A4A537 /* SceneDelegate.swift */; };
 		B2F9847A24A1E6A700A4A537 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B2F9847924A1E6A700A4A537 /* Assets.xcassets */; };
@@ -58,6 +63,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		B254D10224B72FE900487DD5 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		B25E09CB24AC742300FB6EEC /* SearchUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchUI.swift; sourceTree = "<group>"; };
+		B26E1FEF24D717FF0021A336 /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
+		B2D575C324D9C96500B9CA7E /* ListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListView.swift; sourceTree = "<group>"; };
+		B2EA71F224BE04710064E493 /* Currency.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Currency.json; sourceTree = "<group>"; };
 		B2F9847024A1E6A500A4A537 /* Finance.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Finance.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2F9847324A1E6A500A4A537 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B2F9847524A1E6A500A4A537 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -187,6 +197,7 @@
 				B2F9849524A1E79400A4A537 /* SPY_fundamental.json */,
 				B2F9849624A1E79400A4A537 /* SPY_modules.json */,
 				B2F9849824A1E79400A4A537 /* UAHUSD_json.json */,
+				B2EA71F224BE04710064E493 /* Currency.json */,
 			);
 			path = JSON;
 			sourceTree = "<group>";
@@ -232,6 +243,10 @@
 			isa = PBXGroup;
 			children = (
 				B2F984D224A1E85400A4A537 /* MainView.swift */,
+				B26E1FEF24D717FF0021A336 /* ActivityIndicator.swift */,
+				B25E09CB24AC742300FB6EEC /* SearchUI.swift */,
+				B254D10224B72FE900487DD5 /* SettingsView.swift */,
+				B2D575C324D9C96500B9CA7E /* ListView.swift */,
 				B2F984CC24A1E85300A4A537 /* ChartView.swift */,
 				B2F984D524A1E85400A4A537 /* DetailChartView.swift */,
 				B2F984D424A1E85400A4A537 /* EditView.swift */,
@@ -310,6 +325,7 @@
 				B2F9849D24A1E79500A4A537 /* BTCUSD_fundamental.json in Resources */,
 				B2F9849E24A1E79500A4A537 /* BTCUSD_chart.json in Resources */,
 				B2F984A424A1E79500A4A537 /* Search.json in Resources */,
+				B2EA71F324BE04710064E493 /* Currency.json in Resources */,
 				B2F984A524A1E79500A4A537 /* AAPL_fundamental.json in Resources */,
 				B2F984A224A1E79500A4A537 /* AAPL_chart.json in Resources */,
 				B2F984A024A1E79500A4A537 /* SPY_fundamental.json in Resources */,
@@ -331,6 +347,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B26E1FF024D717FF0021A336 /* ActivityIndicator.swift in Sources */,
 				B2F984B524A1E7C700A4A537 /* HistoricalChart.swift in Sources */,
 				B2F984DB24A1E85400A4A537 /* ChartView.swift in Sources */,
 				B2F9848F24A1E77700A4A537 /* InternetConnectionManager.swift in Sources */,
@@ -348,9 +365,12 @@
 				B2F984DD24A1E85400A4A537 /* IndicatorView.swift in Sources */,
 				B2F984C824A1E82C00A4A537 /* ChartViewModel.swift in Sources */,
 				B2F9847624A1E6A500A4A537 /* SceneDelegate.swift in Sources */,
+				B25E09CC24AC742300FB6EEC /* SearchUI.swift in Sources */,
 				B2F984B824A1E7C700A4A537 /* SymbolsList.swift in Sources */,
+				B2D575C424D9C96500B9CA7E /* ListView.swift in Sources */,
 				B2F984E324A1E85400A4A537 /* EditView.swift in Sources */,
 				B2F984DC24A1E85400A4A537 /* SearchBar.swift in Sources */,
+				B254D10324B72FE900487DD5 /* SettingsView.swift in Sources */,
 				B2F984B124A1E7C700A4A537 /* Quote.swift in Sources */,
 				B2F984DA24A1E85400A4A537 /* TimeMarkersView.swift in Sources */,
 				B2F984C124A1E80500A4A537 /* WebService.swift in Sources */,
@@ -432,7 +452,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -486,7 +506,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -500,9 +520,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"Finance/Preview Content\"";
-				DEVELOPMENT_TEAM = 3Q33S9W6V6;
+				DEVELOPMENT_TEAM = 433Y8LVG66;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Finance/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -511,6 +532,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.andriizuiok.Finance;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -520,9 +542,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"Finance/Preview Content\"";
-				DEVELOPMENT_TEAM = 3Q33S9W6V6;
+				DEVELOPMENT_TEAM = 433Y8LVG66;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Finance/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -531,6 +554,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.andriizuiok.Finance;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};

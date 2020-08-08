@@ -21,6 +21,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func isAppAlreadyLaunchedOnce() -> Bool {
         let defaults = UserDefaults.standard
+        
+        defaults.set(true, forKey: "isAppAlreadyLaunchedOnce")
 
         if defaults.string(forKey: "isAppAlreadyLaunchedOnce") != nil {
             //debugPrint("App already launched sometimes")
@@ -36,7 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         if !isAppAlreadyLaunchedOnce() { storeDefaultsFromSymbolLists(defaultLists) }
-        
+        //storeDefaultsFromSymbolLists(defaultLists)
     
         return true
     }

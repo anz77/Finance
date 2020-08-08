@@ -9,17 +9,11 @@
 import SwiftUI
 import UIKit
 
+class EditTableViewController: UIViewController {
 
-class EditTableViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate {
-    
-    
     @ObservedObject var mainViewModel: MainViewModel
-    
     var symbolsLists: [SymbolsList]
-    
     var symbolsForDeleting: [String] = []
-    
-    
     var editListsEnabled: Bool = false
     
 //MARK: - INIT
@@ -37,8 +31,9 @@ class EditTableViewController: UIViewController, UITableViewDelegate, UITableVie
 //MARK: - UI
     lazy var tableView: UITableView = {
         let tableView = UITableView(frame: CGRect.zero, style: UITableView.Style.grouped)
-        tableView.contentInset = UIEdgeInsets(top: -20, left: 0, bottom: 0, right: 0)
+        tableView.contentInset = UIEdgeInsets(top: -20, left: 0, bottom: 100, right: 0)
         tableView.isEditing = true
+        //tableView.contentInset.bottom += 40
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
@@ -70,6 +65,7 @@ class EditTableViewController: UIViewController, UITableViewDelegate, UITableVie
         return button
     }()
     
+    
     @objc func save() {
         
         if symbolsLists != mainViewModel.symbolsLists {
@@ -86,11 +82,42 @@ class EditTableViewController: UIViewController, UITableViewDelegate, UITableVie
             }
         }
         
-        mainViewModel.chartViewModels.forEach{ viewModel in
-                viewModel.start()
+        let files = StorageService.getSymbolsFiles()
+        
+        for file in files {
+            
+            var deleteFile = true
+            
+            for list in mainViewModel.symbolsLists {
+                for symbol in list.symbolsArray {
+                    if file == symbol + "_FUNDAMENTAL" {
+                        deleteFile = false
+                        break
+                    }
+                }
+            }
+            
+            if deleteFile {
+                do {
+                    try StorageService.removeFile(name: file)
+                } catch {
+                    switch error {
+                    case let error as StorageError:
+                        debugPrint(error.errorDescription!)
+                    default:
+                         debugPrint(error.localizedDescription)
+                    }
+                }
+              
+            }
+            
         }
         
-        debugPrint(mainViewModel.chartViewModels.count)
+        mainViewModel.chartViewModels.forEach{ viewModel in
+            viewModel.start()
+        }
+        
+        //debugPrint(mainViewModel.chartViewModels.count)
         self.dismiss(animated: true) {}
     }
     
@@ -143,9 +170,6 @@ class EditTableViewController: UIViewController, UITableViewDelegate, UITableVie
         tableView.reloadData()
     }
     
-    
-    
-    
 //MARK: - VIEW LIFECICLE
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -191,31 +215,83 @@ class EditTableViewController: UIViewController, UITableViewDelegate, UITableVie
             addNewListButton.topAnchor.constraint(equalTo: saveButton.topAnchor, constant: 50),
             addNewListButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 15)])
      }
-    
-    
-//MARK: - UITABLEVIEWDATASOURCE
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return editListsEnabled ? 1 : symbolsLists.count
+        
+    enum KeyboardState {
+        case unknown, entering, exiting
     }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return editListsEnabled ? symbolsLists.count : symbolsLists[section].symbolsArray.count
-    }
-    
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: UITableViewCell.CellStyle.subtitle, reuseIdentifier: "Cell")
-        if editListsEnabled {
-            cell.textLabel?.text = symbolsLists[indexPath.row].name
-        } else {
-            cell.textLabel?.text = symbolsLists[indexPath.section].symbolsArray[indexPath.row]
+
+    func keyboardState(for userInfo: [AnyHashable: Any], in view: UIView?) -> (KeyboardState, CGRect?) {
+        var rold = userInfo[UIResponder.keyboardFrameBeginUserInfoKey] as! CGRect
+        var rnew = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as! CGRect
+        var keyboardState : KeyboardState = .unknown
+        var newRect : CGRect? = nil
+        if let view = view {
+            let coordinateSpace = UIScreen.main.coordinateSpace
+            rold = coordinateSpace.convert(rold, to: view)
+            rnew = coordinateSpace.convert(rnew, to: view)
+            newRect = rnew
+            if !rold.intersects(view.bounds) && rnew.intersects(view.bounds) {
+                keyboardState = .entering
+            }
+            if rold.intersects(view.bounds) && !rnew.intersects(view.bounds) {
+                keyboardState = .exiting
+            }
         }
-        return cell
+        return (keyboardState, newRect)
     }
     
+    var oldContentInset: UIEdgeInsets = UIEdgeInsets.zero
+    var oldIndicatorInset: UIEdgeInsets = UIEdgeInsets.zero
+    var oldOffset: CGPoint = .zero
     
-//MARK: - UITABLEVIEWDELEGATE
+    @objc func keyboardShow(_ notification: Notification) {
+        debugPrint("keyboardShow")
+        let d = notification.userInfo!
+        let (state, rnew) = keyboardState(for: d, in: self.view)
+        debugPrint(state)
+
+        if state == .entering {
+            debugPrint(state)
+            self.oldOffset = self.tableView.contentOffset
+            self.oldContentInset = self.tableView.contentInset
+            self.oldIndicatorInset = self.tableView.verticalScrollIndicatorInsets
+        }
+        if let rnew = rnew {
+            let h = rnew.intersection(self.tableView.bounds).height
+            self.tableView.contentInset.bottom = h + 100
+            self.tableView.verticalScrollIndicatorInsets.bottom = h + 100
+        }
+    }
     
+    @objc func keyboardHide(_ notification: Notification) {
+        debugPrint("keyboardHide")
+
+        let d = notification.userInfo!
+        let (state, _) = keyboardState(for: d, in: self.view)
+        debugPrint(state)
+
+        if state == .exiting {
+            debugPrint(state)
+            self.tableView.contentOffset = self.oldOffset
+            self.tableView.verticalScrollIndicatorInsets = self.oldIndicatorInset
+            self.tableView.contentInset = self.oldContentInset
+        }
+    }
+}
+
+//MARK: - UITEXTFIELDDELEGATE
+extension EditTableViewController: UITextFieldDelegate {
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        guard let text = textField.text else {return true}
+        symbolsLists[textField.tag].name = text
+        textField.resignFirstResponder()
+        return true
+    }
+}
+
+//MARK: - UITableViewDelegate
+extension EditTableViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         
@@ -291,89 +367,33 @@ class EditTableViewController: UIViewController, UITableViewDelegate, UITableVie
         return headerView
     }
     
-    
-//MARK: - UITEXTFIELDDELEGATE
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        guard let text = textField.text else {return true}
-        symbolsLists[textField.tag].name = text
-        textField.resignFirstResponder()
-        return true
-    }
-    
-    enum KeyboardState {
-        case unknown
-        case entering
-        case exiting
-    }
-
-    func keyboardState(for userInfo: [AnyHashable: Any], in view: UIView?) -> (KeyboardState, CGRect?) {
-        var rold = userInfo[UIResponder.keyboardFrameBeginUserInfoKey] as! CGRect
-        var rnew = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as! CGRect
-        var keyboardState : KeyboardState = .unknown
-        var newRect : CGRect? = nil
-        if let view = view {
-            let coordinateSpace = UIScreen.main.coordinateSpace
-            rold = coordinateSpace.convert(rold, to: view)
-            rnew = coordinateSpace.convert(rnew, to: view)
-            newRect = rnew
-            if !rold.intersects(view.bounds) && rnew.intersects(view.bounds) {
-                keyboardState = .entering
-            }
-            if rold.intersects(view.bounds) && !rnew.intersects(view.bounds) {
-                keyboardState = .exiting
-            }
-        }
-        return (keyboardState, newRect)
-    }
-    
-    var oldContentInset: UIEdgeInsets = UIEdgeInsets.zero
-    var oldIndicatorInset: UIEdgeInsets = UIEdgeInsets.zero
-    var oldOffset: CGPoint = .zero
-    
-    @objc func keyboardShow(_ notification: Notification) {
-        debugPrint("keyboardShow")
-        let d = notification.userInfo!
-        let (state, rnew) = keyboardState(for: d, in: self.view)
-        debugPrint(state)
-
-        if state == .entering {
-            debugPrint(state)
-            self.oldOffset = self.tableView.contentOffset
-            self.oldContentInset = self.tableView.contentInset
-            self.oldIndicatorInset = self.tableView.verticalScrollIndicatorInsets
-        }
-        if let rnew = rnew {
-            let h = rnew.intersection(self.tableView.bounds).height
-            self.tableView.contentInset.bottom = h + 100
-            self.tableView.verticalScrollIndicatorInsets.bottom = h + 100
-        }
-    }
-    
-    @objc func keyboardHide(_ notification: Notification) {
-        debugPrint("keyboardHide")
-
-        let d = notification.userInfo!
-        let (state, _) = keyboardState(for: d, in: self.view)
-        debugPrint(state)
-
-        if state == .exiting {
-            debugPrint(state)
-            self.tableView.contentOffset = self.oldOffset
-            self.tableView.verticalScrollIndicatorInsets = self.oldIndicatorInset
-            self.tableView.contentInset = self.oldContentInset
-        }
-    }
-    
-    
-    
 }
 
 
+//MARK: - UITableViewDataSource
+extension EditTableViewController: UITableViewDataSource {
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return editListsEnabled ? 1 : symbolsLists.count
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return editListsEnabled ? symbolsLists.count : symbolsLists[section].symbolsArray.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = UITableViewCell(style: UITableViewCell.CellStyle.subtitle, reuseIdentifier: "Cell")
+        if editListsEnabled {
+            cell.textLabel?.text = symbolsLists[indexPath.row].name
+        } else {
+            cell.textLabel?.text = symbolsLists[indexPath.section].symbolsArray[indexPath.row]
+        }
+        return cell
+    }
+}
 
 
-
-//MARK: - EDITVIEW
+//MARK: - EditView (UIViewControllerRepresentable)
 struct EditView: UIViewControllerRepresentable {
     
     //@Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>

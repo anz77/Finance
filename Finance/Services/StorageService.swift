@@ -16,6 +16,8 @@ enum StorageError: Swift.Error {
         case writtingFailed
         case fileNotExists
         case readingFailed
+        case deletingFiled
+        case undefinedError
         
         var errorDescription: String? {
             switch self {
@@ -29,7 +31,12 @@ enum StorageError: Swift.Error {
                 return "File not exists"
             case .readingFailed:
                 return "Reading failed"
+            case .deletingFiled:
+                return "Deleting error"
+            case .undefinedError:
+                return "Undefined error"
             }
+            
             
         }
     }
@@ -94,15 +101,19 @@ enum StorageService {
     }
     
     
-//MARK: -FETCHING FROM DISC
+//MARK: - FETCHING FROM DISC
 
     static func readData<T: Codable>(from url: URL, decodableType: T.Type, completion: @escaping (_ object: T)->()) throws {
 
         guard FileManager.default.fileExists(atPath: url.path) else {
+            debugPrint("fileExists ERROR!!!")
+
             throw StorageError.fileNotExists
         }
         
         guard let data = try? Data(contentsOf: url, options: Data.ReadingOptions.mappedIfSafe) else {
+            debugPrint("data ERROR!!!")
+
             throw StorageError.readingFailed
         }
         
@@ -110,6 +121,8 @@ enum StorageService {
             let decoded = try JSONDecoder().decode(decodableType, from: data)
             completion(decoded)
         } catch {
+            debugPrint("decoding ERROR!!!")
+
             throw error as? DecodingError ?? error
         }
     }
@@ -136,5 +149,61 @@ enum StorageService {
             }
         }
     }
+    
+    
+//MARK: - REMOVE FROM DISC
+//
+//    static func clearAllFiles() {
+//
+//        debugPrint("CLEARING")
+//
+//        let fileManager = FileManager.default
+//        let myDocuments = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
+//        do {
+//            try fileManager.removeItem(at: myDocuments)
+//        } catch {
+//            debugPrint("CLEARING ERROR")
+//            return
+//        }
+//    }
+//
+    static func getSymbolsFiles() -> [String] {
+
+        let documentsUrl =  FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+
+        do {
+            let directoryContents = try FileManager.default.contentsOfDirectory(at: documentsUrl, includingPropertiesForKeys: nil)
+            
+            let names = directoryContents.map{ $0.deletingPathExtension().lastPathComponent }
+            return names
+
+        } catch {
+            debugPrint(error)
+            return []
+        }
+        
+    }
+    
+    static func removeFile(name: String) throws {
+        if let filePath = StorageService.makeDocumentDirectoryURL(forFileNamed: name)?.path {
+            
+            do {
+                let fileManager = FileManager.default
+                
+                guard FileManager.default.fileExists(atPath: filePath) else {
+                    throw StorageError.fileNotExists
+                }
+                
+                do {
+                    try fileManager.removeItem(atPath: filePath)
+                } catch {
+                    throw StorageError.deletingFiled
+                }
+            } catch  {
+                throw StorageError.undefinedError
+            }
+        }
+    }
+    
     
 }

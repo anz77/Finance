@@ -97,6 +97,7 @@ class ChartViewModel: ObservableObject, Identifiable {
     var internetChecker: Bool {
         didSet {
             if internetChecker {
+                //setAndConfigureSession()
                 setSubscriptions()
                 //debugPrint("internet IN")
                 start()
@@ -141,7 +142,12 @@ class ChartViewModel: ObservableObject, Identifiable {
         }
     }
     
-    @Published var fundamental: Fundamental?{ willSet { if let newPrice = newValue?.optionChain?.result?.first?.quote?.regularMarketPrice { regularPriceNewValue = newPrice }}}
+    @Published var fundamental: Fundamental?{
+        willSet { if let newPrice = newValue?.optionChain?.result?.first?.quote?.regularMarketPrice { regularPriceNewValue = newPrice }}
+        didSet {
+            
+        }
+    }
     
     @Published var rss: [RSSItem] = []
     
@@ -178,9 +184,11 @@ class ChartViewModel: ObservableObject, Identifiable {
     private var fundamentalURL: URL { WebService.makeFundamentaltURL(symbol: self.symbol ?? "", date: Int(Date().timeIntervalSince1970)) }
     private var historicalChartURL: URL { WebService.makeHistoricalChartURL(symbol: self.symbol ?? "", period: period, interval: timeInterval) }
     private var rssURL: URL { WebService.makeRSSURL(symbol: self.symbol ?? "") }
-    private var modulesURL: URL { WebService.makeModulesURL(symbol: self.symbol ?? "", modules: [.assetProfile, .balanceSheetHistory, .balanceSheetHistoryQuarterly, .calendarEvents, .cashflowStatementHistory, .cashflowStatementHistoryQuarterly, .defaultKeyStatistics, .earnings, .earningsHistory, .earningsTrend, .financialData, .fundOwnership, .incomeStatementHistory, .incomeStatementHistoryQuarterly, .indexTrend, .industryTrend, .insiderHolders, .insiderTransactions, .institutionOwnership, .majorDirectHolders, .majorHoldersBreakdown, .netSharePurchaseActivity, .recommendationTrend, .secFilings, .sectorTrend, .upgradeDowngradeHistory]) }
+    private var modulesURL: URL { WebService.makeModulesURL(symbol: self.symbol ?? "", modules: [/*.assetProfile, .balanceSheetHistory, .balanceSheetHistoryQuarterly, .calendarEvents, .cashflowStatementHistory, .cashflowStatementHistoryQuarterly,*/ .defaultKeyStatistics, /*.earnings, .earningsHistory, .earningsTrend, .financialData, .fundOwnership, .incomeStatementHistory, .incomeStatementHistoryQuarterly, .indexTrend, .industryTrend, .insiderHolders, .insiderTransactions, .institutionOwnership, .majorDirectHolders, .majorHoldersBreakdown, .netSharePurchaseActivity, .recommendationTrend, .secFilings, .sectorTrend, .upgradeDowngradeHistory*/]) }
     private var fundamentalStorageURL: URL? { StorageService.makeDocumentDirectoryURL(forFileNamed: (self.symbol ?? "") + "_FUNDAMENTAL") }
     private var historicalChartStorageURL: URL? { StorageService.makeDocumentDirectoryURL(forFileNamed: (self.symbol ?? "") + "_HISTORICAL") }
+    
+    var session: URLSession?
     
     
 //MARK: - INIT
@@ -198,6 +206,7 @@ class ChartViewModel: ObservableObject, Identifiable {
             self.fundamentalTimerInterval = 15.0
         }
         
+        //self.setAndConfigureSession()
         setSubscriptions()
         
         if self.internetChecker {
@@ -209,7 +218,7 @@ class ChartViewModel: ObservableObject, Identifiable {
     }
     
     // only for preview
-    init(withJSON JSON: String, internetChecker: Bool = true, symbolNotSaved: Bool = false) {
+    init(withJSON JSON: String, internetChecker: Bool = true) {
         self.symbol = JSON
         self.internetChecker = internetChecker
         getFundamentalFrom(JSON: JSON)
@@ -221,19 +230,36 @@ class ChartViewModel: ObservableObject, Identifiable {
         //debugPrint("               deinit DetailChartViewModel")
     }
     
+    func setAndConfigureSession() {
+        
+        let configuration = URLSessionConfiguration.default
+        //configuration.waitsForConnectivity = true
+        session = URLSession(configuration: configuration, delegate: nil, delegateQueue: nil)
+    }
+    
+    
 //MARK: - FETCHING (COMBINE API METHODS)
     
     func setFundamenatalSubscription() {
+        
+        guard let session = self.session else {return}
+        
         fundamentalSubscription =
         fundamentalTimerSubject
-        .flatMap { _ in WebService.makeNetworkQuery(for: self.fundamentalURL, decodableType: Fundamental.self).receive(on: DispatchQueue.main) }
+        .flatMap { _ in
+            
+            WebService.makeNetworkQuery(for: self.fundamentalURL, decodableType: Fundamental.self, session: session).receive(on: DispatchQueue.main)
+            
+            //WebService.makeNetworkQuery(for: self.fundamentalURL, decodableType: Fundamental.self).receive(on: DispatchQueue.main)
+            
+        }
         .sink(receiveCompletion: { completion in
-            switch completion {
-            case .failure(let error):
-                debugPrint(error)
-            case .finished:
-                debugPrint("finished")
-            }
+//            switch completion {
+//            case .failure(let error):
+//                debugPrint(error)
+//            case .finished:
+//                debugPrint("finished")
+//            }
         }) { [weak self] fundamental in
             //debugPrint((self?.isDetailViewModel ?? false ? "               DetailVM " : "ChartVM ") + "get value")
             self?.fundamental = fundamental
@@ -241,58 +267,102 @@ class ChartViewModel: ObservableObject, Identifiable {
     }
     
     func setHistoricalChartSubscription() {
+        
+        guard let session = self.session else {return}
+        
         historicalChartSubscription =
         historicalChartTimerSubject
-            .flatMap { _ in WebService.makeNetworkQuery(for: self.historicalChartURL, decodableType: HistoricalChart.self).receive(on: DispatchQueue.main) }
+            .flatMap { _ in
+                
+                WebService.makeNetworkQuery(for: self.historicalChartURL, decodableType: HistoricalChart.self, session: session).receive(on: DispatchQueue.main)
+                //WebService.makeNetworkQuery(for: self.historicalChartURL, decodableType: HistoricalChart.self).receive(on: DispatchQueue.main)
+                
+        }
             .sink(receiveCompletion: {completion in
-                switch completion {
-                case .failure(let error):
-                    debugPrint(error)
-                case .finished:
-                    debugPrint("finished")
-                }
+//                switch completion {
+//                case .failure(let error):
+//                    debugPrint(error)
+//                case .finished:
+//                    debugPrint("finished")
+//                }
             }) { [weak self] historicalChart in self?.chart = historicalChart }
     }
     
     func setRssSubscription() {
+        
+        //guard let session = self.session else {return}
+
+        
         rssSubscription = rssSubject
-            .flatMap { _ in WebService.makeNetworkQueryForXML(for: self.rssURL).receive(on: DispatchQueue.main)}
+            .flatMap { _ in
+                
+                //WebService.makeNetworkQueryForXML(for: self.rssURL).receive(on: DispatchQueue.main)
+                
+                WebService.makeNetworkQueryForXML(for: self.rssURL).receive(on: DispatchQueue.main)
+                
+                
+        }
             .sink(receiveCompletion: { completion in
-                switch completion {
-                case .failure(let error):
-                    debugPrint(error)
-                case .finished:
-                   debugPrint("finished")
-                }
+//                switch completion {
+//                case .failure(let error):
+//                    debugPrint(error)
+//                case .finished:
+//                   debugPrint("finished")
+//                }
             }) { [weak self] rss in self?.rss = rss }
     }
     
     func setModulesSubscription() {
+        
+        guard let session = self.session else {return}
+        
         modulesSubscription =
         modulesSubject
-            .flatMap { _ in WebService.makeNetworkQuery(for: self.modulesURL, decodableType: Modules.self).receive(on: DispatchQueue.main) }
+            .flatMap { _ in
+                
+                WebService.makeNetworkQuery(for: self.modulesURL, decodableType: Modules.self, session: session).receive(on: DispatchQueue.main)
+                
+                //WebService.makeNetworkQuery(for: self.modulesURL, decodableType: Modules.self).receive(on: DispatchQueue.main)
+                
+        }
             .sink(receiveCompletion: {completion in
-                switch completion {
-                case .failure(let error):
-                    debugPrint(error)
-                case .finished:
-                    debugPrint("finished")
-                }
+//                switch completion {
+//                case .failure(let error):
+//                    debugPrint(error)
+//                case .finished:
+//                    debugPrint("finished")
+//                }
             }) { [weak self] modules in self?.modules = modules }
     }
     
     
     func setSubscriptions() {
+        
+        //debugPrint("SET SUBSCRIPTIONS")
+        
+        setAndConfigureSession()
+
         setFundamenatalSubscription()
         setHistoricalChartSubscription()
+        
+        if isDetailViewModel {
+            setModulesSubscription()
+            setRssSubscription()
+        }
         setRssSubscription()
+
+        
     }
     
     func start() {
         fundamentalTimerSubject.send()
         historicalChartTimerSubject.send()
-        rssSubject.send()
-        
+                
+        if isDetailViewModel {
+            modulesSubject.send()
+            rssSubject.send()
+        }
+                
         Timer.publish(every: fundamentalTimerInterval, tolerance: .none, on: RunLoop.main, in: RunLoop.Mode.common, options: nil)
             .autoconnect()
             .sink(receiveCompletion: { _ in }) { [weak self] _ in self?.fundamentalTimerSubject.send() }
@@ -308,18 +378,29 @@ class ChartViewModel: ObservableObject, Identifiable {
         timersSubscriptions.forEach { $0.cancel() }
     }
     
-    
+   
     func cancelSubscriptions() {
+        //debugPrint("CANCEL SUBSCRIPTIONS")
+        
+        session?.invalidateAndCancel()
+        //session?.finishTasksAndInvalidate()
         stopTimers()
         fundamentalSubscription?.cancel()
         historicalChartSubscription?.cancel()
-        rssSubscription?.cancel()
-        modulesSubscription?.cancel()
+        
+        
+        if isDetailViewModel {
+            rssSubscription?.cancel()
+            modulesSubscription?.cancel()
+        }
+        
+        
     }
 
 // MARK: - STORING (VANILLA API)
     func storeFundamentalToDisc() {
         guard let url = self.fundamentalStorageURL else {return}
+        //debugPrint(url)
         do {
             try StorageService.storeData(self.fundamental, url: url)
             
@@ -537,6 +618,22 @@ class ChartViewModel: ObservableObject, Identifiable {
             self.timeMarkerCount = count
         } else {
             self.timeMarkerCount = timeStampCount
+        }
+    }
+
+    func priceForIndex(_ index: Int) -> Double {
+        
+        guard let quote = self.chart?.chart?.result?.first??.indicators?.quote?.first,
+            let meta = self.chart?.chart?.result?.first??.meta, let chartPreviousClose = meta.chartPreviousClose else { return 0 }
+        
+        if let close = quote.close?[index] {
+            return close
+        } else {
+            var nonNullIndex = index
+            while quote.close?[nonNullIndex] == nil || quote.open?[nonNullIndex] == nil || quote.low?[nonNullIndex] == nil || quote.high?[nonNullIndex] == nil {
+                nonNullIndex = nonNullIndex - 1
+            }
+            return quote.close?[nonNullIndex] ?? chartPreviousClose
         }
     }
     

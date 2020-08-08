@@ -8,6 +8,49 @@
 
 import SwiftUI
 
+struct KeyElement {
+    let title: String
+    let content: String?
+}
+
+struct KeyStatisticsRow: View {
+    
+    var title: String
+    var content: String?
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Text(title)
+                Spacer()
+                Text(content ?? "N/A")
+                .fontWeight(.semibold)
+            }
+            .font(.subheadline)
+            .padding([.bottom, .top], 5)
+            
+            Divider()
+        }
+    }
+}
+
+struct StatisticsView: View {
+    var list: [KeyElement]
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            
+            VStack(alignment: .leading, spacing: 0) {
+                
+                ForEach(0..<list.count) { index in
+                    KeyStatisticsRow(title: self.list[index].title, content: self.list[index].content)
+                }
+            }
+        }
+    }
+}
+
+
 struct KeyStatisticsView: View {
     @ObservedObject var viewModel: ChartViewModel
     
@@ -19,8 +62,99 @@ struct KeyStatisticsView: View {
         viewModel.modules?.quoteSummary?.result?.first ?? nil
     }
     
+    var equityList: [KeyElement] { [
+        KeyElement(title: "Open", content: formattedTextForDouble(value: quote?.regularMarketOpen, signed: false)),
+        KeyElement(title: "Day's range", content: quote?.regularMarketDayRange),
+        KeyElement(title: "52-week range", content: quote?.fiftyTwoWeekRange),
+        KeyElement(title: "Market cap", content: self.formattedTextForInt(value: quote?.marketCap)),
+        KeyElement(title: "Volume", content: formattedTextForInt(value: quote?.regularMarketVolume)),
+        KeyElement(title: "Avg. volume (3m)", content: formattedTextForInt(value: quote?.averageDailyVolume3Month)),
+        KeyElement(title: "PE ratio (TTM)", content: formattedTextForDouble(value: quote?.trailingPE, signed: false)),
+        KeyElement(title: "EPS (TTM)", content: formattedTextForDouble(value: quote?.epsTrailingTwelveMonths, signed: false)),
+        KeyElement(title: "Beta", content: modulesResult?.defaultKeyStatistics?.beta?.fmt),
+        KeyElement(title: "Dividend", content: (formattedTextForDouble(value: quote?.trailingAnnualDividendRate, signed: false) ?? "") + (quote?.trailingAnnualDividendYield != nil ? "(" + (formattedTextForDouble(value: ((quote?.trailingAnnualDividendYield ?? 0) * 100), signed: false) ?? "") + "%)" : "N/A")),
+        KeyElement(title: "Earnings date", content: stringForDatesRange(start: quote?.earningsTimestampStart, end: quote?.earningsTimestampEnd, dateFormat: "dd.MM")),
+        //KeyElement(title: "1Y target est.", content: "N/A"),
+        ]}
+    
+    var indexList: [KeyElement] { [
+        KeyElement(title: "Open", content: formattedTextForDouble(value: quote?.regularMarketOpen, signed: false)),
+        KeyElement(title: "Day's range", content: quote?.regularMarketDayRange),
+        KeyElement(title: "52-week range", content: quote?.fiftyTwoWeekRange),
+        ]}
+    
+    var currencyList: [KeyElement] { [
+        KeyElement(title: "Open", content: formattedTextForDouble(value: quote?.regularMarketOpen, signed: false)),
+        KeyElement(title: "Day's range", content: quote?.regularMarketDayRange),
+        KeyElement(title: "52-week range", content: quote?.fiftyTwoWeekRange),
+        KeyElement(title: "Bid", content: formattedTextForDouble(value: quote?.bid, signed: false)),
+        KeyElement(title: "Ask", content: formattedTextForDouble(value: quote?.ask, signed: false)),
+        ]}
+    
+    var futureList: [KeyElement] { [
+        KeyElement(title: "Open", content: formattedTextForDouble(value: quote?.regularMarketOpen, signed: false)),
+        KeyElement(title: "Day's range", content: quote?.regularMarketDayRange),
+        KeyElement(title: "52-week range", content: quote?.fiftyTwoWeekRange),
+        KeyElement(title: "Bid", content: formattedTextForDouble(value: quote?.bid, signed: false)),
+        KeyElement(title: "Ask", content: formattedTextForDouble(value: quote?.ask, signed: false)),
+        KeyElement(title: "Market cap", content: self.formattedTextForInt(value: quote?.marketCap)),
+        KeyElement(title: "Volume", content: formattedTextForInt(value: quote?.regularMarketVolume)),
+        KeyElement(title: "Avg. volume (3m)", content: formattedTextForInt(value: quote?.averageDailyVolume3Month)),
+        KeyElement(title: "PE ratio (TTM)", content: formattedTextForDouble(value: quote?.trailingPE, signed: false)),
+        KeyElement(title: "Dividend", content: (formattedTextForDouble(value: quote?.trailingAnnualDividendRate, signed: false) ?? "") + (quote?.trailingAnnualDividendYield != nil ? "(" + (formattedTextForDouble(value: ((quote?.trailingAnnualDividendYield ?? 0) * 100), signed: false) ?? "") + "%)" : "N/A")),
+        //KeyElement(title: "1Y target est.", content: "N/A"),
+        ]}
+    
+    var etfList: [KeyElement] { [
+        KeyElement(title: "Open", content: formattedTextForDouble(value: quote?.regularMarketOpen, signed: false)),
+        KeyElement(title: "Day's range", content: quote?.regularMarketDayRange),
+        KeyElement(title: "52-week range", content: quote?.fiftyTwoWeekRange),
+        KeyElement(title: "Bid", content: formattedTextForDouble(value: quote?.bid, signed: false)),
+        KeyElement(title: "Ask", content: formattedTextForDouble(value: quote?.ask, signed: false)),
+        KeyElement(title: "Volume", content: formattedTextForInt(value: quote?.regularMarketVolume)),
+        KeyElement(title: "Avg. volume (3m)", content: formattedTextForInt(value: quote?.averageDailyVolume3Month)),
+        KeyElement(title: "Net assets", content: modulesResult?.defaultKeyStatistics?.totalAssets?.fmt),
+        //KeyElement(title: "1Y target est.", content: "N/A"),
+        //KeyElement(title: "NAV", content: formattedTextForDouble(value: quote?.trailingThreeMonthNavReturns, signed: false)), // ошибка в NAV
+        KeyElement(title: "PE ratio (TTM)", content: formattedTextForDouble(value: quote?.trailingPE, signed: false)),
+        KeyElement(title: "Yield", content: modulesResult?.defaultKeyStatistics?.yield?.fmt),
+        KeyElement(title: "YTD return", content: modulesResult?.defaultKeyStatistics?.ytdReturn?.fmt),
+        KeyElement(title: "Beta", content: modulesResult?.defaultKeyStatistics?.beta?.fmt),
+        KeyElement(title: "Expense ratio (net)", content: modulesResult?.defaultKeyStatistics?.annualReportExpenseRatio?.fmt),
+        KeyElement(title: "Inception date", content: stringForDate(modulesResult?.defaultKeyStatistics?.fundInceptionDate?.raw, dateFormat: "dd.MM.yyyy")),
+        ]}
+    
+    var fundList: [KeyElement] { [
+        KeyElement(title: "YTD return", content: modulesResult?.defaultKeyStatistics?.ytdReturn?.fmt),
+        KeyElement(title: "Expense ratio (net)", content: modulesResult?.defaultKeyStatistics?.annualReportExpenseRatio?.fmt),
+        KeyElement(title: "Category", content: modulesResult?.defaultKeyStatistics?.category),
+        KeyElement(title: "Morningstar rating", content: modulesResult?.defaultKeyStatistics?.morningStarOverallRating?.longFmt),
+        KeyElement(title: "Morningstar risk rating", content: modulesResult?.defaultKeyStatistics?.morningStarRiskRating?.longFmt),
+        KeyElement(title: "Last cap gain", content: modulesResult?.defaultKeyStatistics?.lastCapGain?.fmt),
+        KeyElement(title: "Net assets", content: modulesResult?.defaultKeyStatistics?.totalAssets?.fmt),
+        KeyElement(title: "Beta", content: modulesResult?.defaultKeyStatistics?.beta?.fmt),
+        KeyElement(title: "Yield", content: modulesResult?.defaultKeyStatistics?.yield?.fmt),
+        KeyElement(title: "Holdings turnover", content: modulesResult?.defaultKeyStatistics?.annualHoldingsTurnover?.fmt),
+        KeyElement(title: "Last dividend", content: modulesResult?.defaultKeyStatistics?.lastDividendValue?.fmt),
+        KeyElement(title: "Inception date", content: stringForDate(modulesResult?.defaultKeyStatistics?.fundInceptionDate?.raw, dateFormat: "dd.MM.yyyy")),
+        ]}
+    
+    var cryptocurrencyList: [KeyElement] { [
+        KeyElement(title: "Open", content: formattedTextForDouble(value: quote?.regularMarketOpen, signed: false)),
+        KeyElement(title: "Day's range", content: quote?.regularMarketDayRange),
+        KeyElement(title: "52-week range", content: quote?.fiftyTwoWeekRange),
+        KeyElement(title: "Market cap", content: self.formattedTextForInt(value: quote?.marketCap)),
+        KeyElement(title: "Volume", content: formattedTextForInt(value: quote?.regularMarketVolume)),
+        KeyElement(title: "Volume (24h)", content: formattedTextForInt(value: quote?.volume24Hr)),
+        KeyElement(title: "Volume (24h) all currencies", content: formattedTextForInt(value: quote?.volumeAllCurrencies)),
+        KeyElement(title: "Circulating supply", content: formattedTextForInt(value: quote?.circulatingSupply)),
+        KeyElement(title: "Max supply", content: formattedTextForInt(value: quote?.maxSupply)),
+        KeyElement(title: "Algorithm", content: "N/A"),
+        KeyElement(title: "Srart date", content: stringForDate(quote?.startDate, dateFormat: "dd.MM.yyyy")),
+        ]}
+ 
+    
     var body: some View {
-        
         
         VStack(alignment: .leading, spacing: 0) {
             Text("Key statistics")
@@ -28,839 +162,38 @@ struct KeyStatisticsView: View {
                 .fontWeight(.semibold)
                 .padding([.bottom])
             
-            //Divider()
-            
             VStack(alignment: .leading, spacing: 0) {
-                
-                HStack {
-                    Text("Previous close")
-                    Spacer()
-                    Text(formattedTextForDouble(value: quote?.regularMarketPreviousClose, signed: false) ?? "N/A")
-                        .fontWeight(.semibold)
-                }
-                    .padding([.bottom, .top], 5)
-                
-                Divider()
+                KeyStatisticsRow(title: "Previous close", content: formattedTextForDouble(value: quote?.regularMarketPreviousClose, signed: false))
             }
-            
-            
             
             if quote?.quoteType == "INDEX" {
-                
-                VStack(alignment: .leading, spacing: 0) {
-
-                    HStack {
-                        Text("Open")
-                        Spacer()
-                        Text(formattedTextForDouble(value: quote?.regularMarketOpen, signed: false) ?? "N/A")
-                        .fontWeight(.semibold)
-                    }
-                    .padding([.bottom, .top], 5)
-                    
-                    Divider()
-                    
-                    HStack {
-                        Text("Day's range")
-                        Spacer()
-                        Text(quote?.regularMarketDayRange ?? "N/A")
-                        .fontWeight(.semibold)
-                    }
-                    .padding([.bottom, .top], 5)
-                    
-                    Divider()
-                    
-                    HStack {
-                        Text("52-week range")
-                        Spacer()
-                        Text(quote?.fiftyTwoWeekRange ?? "N/A")
-                        .fontWeight(.semibold)
-                    }
-                    .padding([.bottom, .top], 5)
-                    
-                    Divider()
-                }
+                StatisticsView(list: indexList)
             }
             
-            
-            
             if quote?.quoteType == "EQUITY" {
-                
-                VStack(alignment: .leading, spacing: 0) {
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-
-                        HStack {
-                            Text("Open")
-                            Spacer()
-                            Text(formattedTextForDouble(value: quote?.regularMarketOpen, signed: false) ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Day's range")
-                            Spacer()
-                            Text(quote?.regularMarketDayRange ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("52-week range")
-                            Spacer()
-                            Text(quote?.fiftyTwoWeekRange ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        
-                        HStack {
-                            Text("Market cap")
-                            Spacer()
-                            Text(formattedTextForInt(value: quote?.marketCap) ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Volume")
-                            Spacer()
-                            Text(formattedTextForInt(value: quote?.regularMarketVolume) ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        /*
-                         HStack {
-                         Text("1Y target est.")
-                         Text(formattedTextForDouble(value: quote?., signed: false))
-                         }
-                         */
-                        
-                        HStack {
-                            Text("Avg. volume (3m)")
-                            Spacer()
-                            Text(formattedTextForInt(value: quote?.averageDailyVolume3Month) ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("PE ratio (TTM)")
-                            Spacer()
-                            Text(formattedTextForDouble(value: quote?.trailingPE, signed: false) ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("EPS (TTM)")
-                            Spacer()
-                            Text(formattedTextForDouble(value: quote?.epsTrailingTwelveMonths, signed: false) ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                    }
-                    
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        
-                        HStack {
-                            Text("Beta")
-                            Spacer()
-                            Text(modulesResult?.defaultKeyStatistics?.beta?.fmt ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-
-                         HStack {
-                         Text("Dividend")
-                         Spacer()
-                            Text(formattedTextForDouble(value: quote?.trailingAnnualDividendRate, signed: false) ?? "")
-                            .fontWeight(.semibold)
-                            Text(quote?.trailingAnnualDividendYield != nil ? "(" + (formattedTextForDouble(value: ((quote?.trailingAnnualDividendYield ?? 0) * 100), signed: false) ?? "") + "%)" : "N/A")
-                            .fontWeight(.semibold)
-                         }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-
-                        HStack {
-                            Text("Earnings date")
-                            Spacer()
-                            Text(stringForDatesRange(start: quote?.earningsTimestampStart, end: quote?.earningsTimestampEnd, dateFormat: "dd.MM") ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-
-                    }
-                }
+                StatisticsView(list: equityList)
             }
             
             if quote?.quoteType == "CURRENCY" {
-                
-                VStack(alignment: .leading, spacing: 0) {
-                    
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        
-                        HStack {
-                            Text("Open")
-                            Spacer()
-                            Text(formattedTextForDouble(value: quote?.regularMarketOpen, signed: false) ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Day's range")
-                            Spacer()
-                            Text(quote?.regularMarketDayRange ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("52-week range")
-                            Spacer()
-                            Text(quote?.fiftyTwoWeekRange ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        
-                        HStack {
-                            Text("Bid")
-                            Spacer()
-                            Text(formattedTextForDouble(value: quote?.bid, signed: false) ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Ask")
-                            Spacer()
-                            Text(formattedTextForDouble(value: quote?.ask, signed: false) ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                    }
-                }
+                StatisticsView(list: currencyList)
             }
             
-            
             if quote?.quoteType == "FUTURE" {
-                VStack(alignment: .leading, spacing: 0) {
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        
-                        HStack {
-                            Text("Open")
-                            Spacer()
-                            Text(formattedTextForDouble(value: quote?.regularMarketOpen, signed: false) ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Day's range")
-                            Spacer()
-                            Text(quote?.regularMarketDayRange ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("52-week range")
-                            Spacer()
-                            Text(quote?.fiftyTwoWeekRange ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        
-                        HStack {
-                            Text("Bid")
-                            Spacer()
-                            Text(formattedTextForDouble(value: quote?.bid, signed: false) ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Ask")
-                            Spacer()
-                            Text(formattedTextForDouble(value: quote?.ask, signed: false) ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        
-                        HStack {
-                            Text("Market cap")
-                            Spacer()
-                            Text(formattedTextForInt(value: quote?.marketCap) ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Volume")
-                            Spacer()
-                            Text(formattedTextForInt(value: quote?.regularMarketVolume) ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        /*
-                         HStack {
-                         Text("1Y target est.")
-                         Text(formattedTextForDouble(value: quote?., signed: false))
-                         }
-                         */
-                        
-                        HStack {
-                            Text("Avg. volume (3m)")
-                            Spacer()
-                            Text(formattedTextForInt(value: quote?.averageDailyVolume3Month) ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("PE ratio (TTM)")
-                            Spacer()
-                            Text(formattedTextForDouble(value: quote?.trailingPE, signed: false) ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                         Text("Dividend")
-                         Spacer()
-                            Text(formattedTextForDouble(value: quote?.trailingAnnualDividendRate, signed: false) ?? "")
-                            .fontWeight(.semibold)
-                            Text(quote?.trailingAnnualDividendYield != nil ? "(" + (formattedTextForDouble(value: ((quote?.trailingAnnualDividendYield ?? 0) * 100), signed: false) ?? "") + "%)" : "N/A")
-                            .fontWeight(.semibold)
-                         }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                    }
-                    
-                }
-                
+                StatisticsView(list: futureList)
             }
             
             if quote?.quoteType == "ETF" {
-                VStack(alignment: .leading, spacing: 0) {
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        
-                        HStack {
-                            Text("Open")
-                            Spacer()
-                            Text(formattedTextForDouble(value: quote?.regularMarketOpen, signed: false) ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Day's range")
-                            Spacer()
-                            Text(quote?.regularMarketDayRange ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("52-week range")
-                            Spacer()
-                            Text(quote?.fiftyTwoWeekRange ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        
-                        HStack {
-                            Text("Bid")
-                            Spacer()
-                            Text(formattedTextForDouble(value: quote?.bid, signed: false) ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Ask")
-                            Spacer()
-                            Text(formattedTextForDouble(value: quote?.ask, signed: false) ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        
-                        HStack {
-                            Text("Volume")
-                            Spacer()
-                            Text(formattedTextForInt(value: quote?.regularMarketVolume) ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        /*
-                         HStack {
-                         Text("1Y target est.")
-                         Text(formattedTextForDouble(value: quote?., signed: false))
-                         }
-                         */
-                        
-                        HStack {
-                            Text("Avg. volume (3m)")
-                            Spacer()
-                            Text(formattedTextForInt(value: quote?.averageDailyVolume3Month) ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-
-                        HStack {
-                            Text("Net assets")
-                            Spacer()
-                            Text( modulesResult?.defaultKeyStatistics?.totalAssets?.fmt ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        /////////////////////////  ошибка в NAV
-                        /*
-                        HStack {
-                            Text("NAV")
-                            Spacer()
-                            Text(formattedTextForDouble(value: quote?.trailingThreeMonthNavReturns, signed: false) ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        */
-                        HStack {
-                            Text("PE ratio (TTM)")
-                            Spacer()
-                            Text(formattedTextForDouble(value: quote?.trailingPE, signed: false) ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        
-                        HStack {
-                            Text("Yield")
-                            Spacer()
-                            Text(modulesResult?.defaultKeyStatistics?.yield?.fmt ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("YTD return")
-                            Spacer()
-                            Text(modulesResult?.defaultKeyStatistics?.ytdReturn?.fmt ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Beta")
-                            Spacer()
-                            Text(modulesResult?.defaultKeyStatistics?.beta?.fmt ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        HStack {
-                            Text("Expense ratio (net)")
-                            Spacer()
-                            Text(modulesResult?.defaultKeyStatistics?.annualReportExpenseRatio?.fmt ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-
-                        Divider()
-
-                        HStack {
-                            Text("Inception date")
-                            Spacer()
-                            Text(stringForDate(modulesResult?.defaultKeyStatistics?.fundInceptionDate?.raw, dateFormat: "dd.MM.yyyy"))
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-
-                        Divider()
-                    }
-                }
-                
+                StatisticsView(list: etfList)
             }
             
             if quote?.quoteType == "FUND" {
-                VStack(alignment: .leading, spacing: 0) {
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        
-                        HStack {
-                            Text("YTD return")
-                            Spacer()
-                            Text(modulesResult?.defaultKeyStatistics?.ytdReturn?.fmt ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Expense ratio (net)")
-                            Spacer()
-                            Text(modulesResult?.defaultKeyStatistics?.annualReportExpenseRatio?.fmt ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Category")
-                            Spacer()
-                            Text(modulesResult?.defaultKeyStatistics?.category ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Morningstar rating")
-                            Spacer()
-                            Text(modulesResult?.defaultKeyStatistics?.morningStarOverallRating?.longFmt ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Morningstar risk rating")
-                            Spacer()
-                            Text(modulesResult?.defaultKeyStatistics?.morningStarRiskRating?.longFmt ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        
-                        HStack {
-                            Text("Last cap gain")
-                            Spacer()
-                            Text( modulesResult?.defaultKeyStatistics?.lastCapGain?.fmt ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Net assets")
-                            Spacer()
-                            Text( modulesResult?.defaultKeyStatistics?.totalAssets?.fmt ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        
-                        HStack {
-                            Text("Beta")
-                            Spacer()
-                            Text(modulesResult?.defaultKeyStatistics?.beta?.fmt ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Yield")
-                            Spacer()
-                            Text(modulesResult?.defaultKeyStatistics?.yield?.fmt ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        
-                        HStack {
-                            Text("Holdings turnover")
-                            Spacer()
-                            Text(modulesResult?.defaultKeyStatistics?.annualHoldingsTurnover?.fmt ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Last dividend")
-                            Spacer()
-                            Text(modulesResult?.defaultKeyStatistics?.lastDividendValue?.fmt ?? "N/A")
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Inception date")
-                            Spacer()
-                            Text(stringForDate(modulesResult?.defaultKeyStatistics?.fundInceptionDate?.raw, dateFormat: "dd.MM.yyyy"))
-                                .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                    }
-                }
-                
+                StatisticsView(list: fundList)
             }
-            
             
             if quote?.quoteType == "CRYPTOCURRENCY" {
-                VStack(alignment: .leading, spacing: 0) {
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        
-                        HStack {
-                            Text("Open")
-                            Spacer()
-                            Text(formattedTextForDouble(value: quote?.regularMarketOpen, signed: false) ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Day's range")
-                            Spacer()
-                            Text(quote?.regularMarketDayRange ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("52-week range")
-                            Spacer()
-                            Text(quote?.fiftyTwoWeekRange ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                    }
-                    
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        
-                        HStack {
-                            Text("Market cap")
-                            Spacer()
-                            Text(formattedTextForInt(value: quote?.marketCap) ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Volume")
-                            Spacer()
-                            Text(formattedTextForInt(value: quote?.regularMarketVolume) ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-
-                        HStack {
-                            Text("Volume (24h)")
-                            Spacer()
-                            Text(formattedTextForInt(value: quote?.volume24Hr) ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Volume (24h) all currencies")
-                            Spacer()
-                            Text(formattedTextForInt(value: quote?.volumeAllCurrencies) ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        
-                        HStack {
-                            Text("Circulating supply")
-                            Spacer()
-                            Text(formattedTextForInt(value: quote?.circulatingSupply) ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Max supply")
-                            Spacer()
-                            Text(formattedTextForInt(value: quote?.maxSupply) ?? "N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Algorithm")
-                            Spacer()
-                            Text("N/A")
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                        
-                        HStack {
-                            Text("Srart date")
-                            Spacer()
-                            Text(stringForDate(quote?.startDate, dateFormat: "dd.MM.yyyy"))
-                            .fontWeight(.semibold)
-                        }
-                        .padding([.bottom, .top], 5)
-                        
-                        Divider()
-                    }
-                }
-                
+                StatisticsView(list: cryptocurrencyList)
             }
-            
         }
-        
     }
     
     private func formattedTextForDouble(value : Double?, signed: Bool) -> String? {
@@ -917,21 +250,24 @@ struct KeyStatisticsView: View {
     
     func stringForDatesRange(start: Int?, end: Int?, dateFormat: String) -> String? {
         guard let start = start, let end = end else {return nil}
-        let startString = stringForDate(start, dateFormat: dateFormat)
-        let endString = stringForDate(end, dateFormat: dateFormat)
-        return startString + " - " + endString
+        if let startString = stringForDate(start, dateFormat: dateFormat), let endString = stringForDate(end, dateFormat: dateFormat) {
+            return startString + " - " + endString
+        } else {
+            return nil
+        }
+        
     }
     
-    func stringForDate(_ date: Int?, dateFormat: String) -> String {
-        guard let date = date else {return "N/A"}
+    func stringForDate(_ date: Int?, dateFormat: String) -> String? {
+        guard let date = date else {return nil}
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = dateFormat
         let time = Date(timeIntervalSince1970: Double(date))
         return dateFormatter.string(from: time)
     }
     
-    func stringForDate(_ date: Double?, dateFormat: String) -> String {
-        guard let date = date else {return "N/A"}
+    func stringForDate(_ date: Double?, dateFormat: String) -> String? {
+        guard let date = date else {return nil}
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = dateFormat
         let time = Date(timeIntervalSince1970: date)
@@ -946,6 +282,6 @@ struct KeyStatisticsView: View {
 
 struct KeyStatisticsView_Previews: PreviewProvider {
     static var previews: some View {
-        KeyStatisticsView(viewModel: ChartViewModel(withJSON: "SPY"))
+        KeyStatisticsView(viewModel: ChartViewModel(withJSON: "AAPL"))
     }
 }

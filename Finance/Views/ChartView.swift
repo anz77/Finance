@@ -23,21 +23,24 @@ struct ChartView: View {
     var body: some View {
         GeometryReader { geometry in
             VStack {
-                Spacer()
-                HStack(spacing: 0) {
+                //Spacer()
+                HStack(alignment: .center, spacing: 0) {
                     
                     VStack(alignment: .leading, spacing: 0) {
-                        //Spacer()
+                        Spacer()
                         Text(verbatim: self.viewModel.symbol /*self.viewModel.fundamental?.optionChain?.result?.first?.underlyingSymbol*/ ?? "").font(.headline).fontWeight(.bold)
                         //Text(self.quote?.quoteType ?? "").font(.footnote)
                         Spacer()
                         Text(verbatim: self.viewModel.fundamental?.optionChain?.result?.first?.quote?.shortName ?? "").font(.subheadline).fontWeight(.light).foregroundColor(.secondary)
                         Spacer()
-                    }.frame(width: geometry.size.width * 0.4, alignment: Alignment(horizontal: .leading, vertical: .center))
+                    }
+                    .padding(.leading, 4)
+                    .frame(width: geometry.size.width * 0.35, alignment: Alignment(horizontal: .leading, vertical: .center))
                     
-                    GraphViewUIKit(viewModel: self.viewModel).frame(width: geometry.size.width * 0.35, alignment: Alignment(horizontal: .center, vertical: .center))
+                    GraphViewUIKit(viewModel: self.viewModel).frame(width: geometry.size.width * 0.40, alignment: Alignment(horizontal: .center, vertical: .center))
                     
                     VStack(alignment: .trailing, spacing: 0) {
+                        //Spacer()
                         Text(self.formattedTextFor(value: self.quote?.regularMarketPrice, signed: false)).font(.headline).fontWeight(.bold)
                             .padding(.init(top: 1, leading: 10, bottom: 1, trailing: 2))
                             .scaledToFill()
@@ -45,11 +48,15 @@ struct ChartView: View {
                             .background(Color(self.changedColorForRegularMarketPrice)).cornerRadius(3)
                         
                         Spacer().frame(height: 1)
-                        Text(self.formattedTextFor(value: self.quote?.regularMarketChangePercent, signed: true) + "%")
+                        
+                        if self.quote?.regularMarketChangePercent != nil {
+                            Text(self.formattedTextFor(value: self.quote?.regularMarketChangePercent, signed: true) + "%")
                             .font(.subheadline).fontWeight(.semibold)
                             .foregroundColor(Color(.white))
                             .padding(.init(top: 1, leading: 7, bottom: 1, trailing: 5))
                             .background(Color(self.changedColor(for: self.quote?.regularMarketChangePercent))).cornerRadius(3)
+                        }
+                        
                         
                         if self.quote?.preMarketChangePercent != nil {
                             HStack(alignment: .center, spacing: 0) {

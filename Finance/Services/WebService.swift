@@ -114,12 +114,62 @@ enum WebService {
     
 
 //MARK: -QUERY (COMBINE)
+    
+    
+    static func makeNetworkQuery<T: Codable>(for url: URL, decodableType: T.Type, session: URLSession) -> AnyPublisher<T, WebServiceError> {
+        
+        //let request = URLRequest(url: url, cachePolicy: URLRequest.CachePolicy.reloadIgnoringCacheData, timeoutInterval: 15)
+        //let configuration = URLSessionConfiguration.default
+        //configuration.waitsForConnectivity = true
+        //let session = URLSession(configuration: configuration)
+        
+        //guard let session = session else { return }
+        
+        return session.dataTaskPublisher(for: url)
+            .tryMap({ data, response in
+                guard let httpResponse = response as? HTTPURLResponse else { throw APIError.unknown }
+                switch httpResponse.statusCode {
+                case 401: throw APIError.apiError(reason: "Unauthorized")
+                case 403: throw APIError.apiError(reason: "Resource forbidden")
+                case 404: throw APIError.apiError(reason: "Resource not found")
+                case 405..<500: throw APIError.apiError(reason: "client error")
+                case 501..<600: throw APIError.apiError(reason: "server error")
+                
+                default: break
+                }
+                if decodableType == HistoricalChart.self {
+                    //print(String(data: data, encoding: String.Encoding.utf8)!)
+                }
+                //print(String(data: data, encoding: String.Encoding.utf8)!)
+                return data
+            })
+            //.receive(on: DispatchQueue.main)
+            .decode(type: T.self, decoder: JSONDecoder())
+            .mapError({ error in
+                switch error {
+                case let error as DecodingError:
+                    return .parserError(from: error)//.parserError(from: decError.failureReason)
+                case let error as URLError:
+                    return .networkError(from: error)
+                case let error as APIError:
+                    return .apiError(from: error)
+                default:
+                    return .unknown
+                }
+            })
+            //.catch { _ in Empty<T, WebServiceError>() }
+            .eraseToAnyPublisher()
+    }
+    
+    
+    
     static func makeNetworkQuery<T: Codable>(for url: URL, decodableType: T.Type) -> AnyPublisher<T, WebServiceError> {
         
         //let request = URLRequest(url: url, cachePolicy: URLRequest.CachePolicy.reloadIgnoringCacheData, timeoutInterval: 10)
         //let configuration = URLSessionConfiguration.default
         //configuration.waitsForConnectivity = true
         //let session = URLSession(configuration: configuration)
+        
         return URLSession.shared.dataTaskPublisher(for: url)
             .tryMap({ data, response in
                 guard let httpResponse = response as? HTTPURLResponse else { throw APIError.unknown }
@@ -129,13 +179,16 @@ enum WebService {
                 case 404: throw APIError.apiError(reason: "Resource not found")
                 case 405..<500: throw APIError.apiError(reason: "client error")
                 case 501..<600: throw APIError.apiError(reason: "server error")
+                
                 default: break
                 }
                 if decodableType == HistoricalChart.self {
                     //print(String(data: data, encoding: String.Encoding.utf8)!)
                 }
+                //print(String(data: data, encoding: String.Encoding.utf8)!)
                 return data
             })
+            //.receive(on: DispatchQueue.main)
             .decode(type: T.self, decoder: JSONDecoder())
             .mapError({ error in
                 switch error {

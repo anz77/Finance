@@ -455,18 +455,6 @@ public struct FundamentalQuote: Codable {
     }
 }
 
-
-
-/*
-public enum ContractSize: String, Codable {
-    case regular = "REGULAR"
-}
-
-public enum Currency: String, Codable {
-    case usd = "USD"
-}
-*/
-
 public enum MarketState: String, Codable {
     case regular = "REGULAR"
     case closed = "CLOSED"

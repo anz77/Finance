@@ -32,6 +32,10 @@ final class MainViewModel: ObservableObject, Identifiable {
     var symbolsLists: [SymbolsList] = [] {
         didSet {
             storeDefaultsFromSymbolLists(symbolsLists)
+            
+            for list in symbolsLists {
+                debugPrint("\(list.name) isActive: \(list.isActive)")
+            }
         }
     }
     
@@ -61,10 +65,7 @@ final class MainViewModel: ObservableObject, Identifiable {
         self.chartViewModels = [ChartViewModel]()
         self.internetChecker = true
     }
-    
-    
-    
-    
+
     init(from symbolsLists: [SymbolsList], internetChecker: Bool = true) {
         self.symbolsLists = symbolsLists
         self.internetChecker = internetChecker
@@ -80,17 +81,20 @@ final class MainViewModel: ObservableObject, Identifiable {
         
         setRssSubscription()
                 
-        if self.internetChecker { start() }
+        if self.internetChecker {
+            start()
+        }
         
-        NotificationCenter.default.addObserver(self, selector: #selector(sceneWillTDeativate(notification:)), name: UIScene.willDeactivateNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(sceneWillTDeactivate(notification:)), name: UIScene.willDeactivateNotification, object: nil)
         
         checkInternetAvailabilityIfChangedPreviousValue(internetChecker)
         
+        for list in symbolsLists {
+            debugPrint("\(list.name) isActive: \(list.isActive)")
+        }
+        
     }
     
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
     
     // ONLY FOR PRESENTATION:
     init(from JSON: String) {
@@ -100,6 +104,10 @@ final class MainViewModel: ObservableObject, Identifiable {
         chartViewModels.append(viewModel)
         self.chartViewModels = chartViewModels
         self.internetChecker = true
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     
@@ -113,12 +121,13 @@ final class MainViewModel: ObservableObject, Identifiable {
         return ChartViewModel(withSymbol: "", isDetailViewModel: false)
     }
     
-    @objc func sceneWillTDeativate(notification: Notification) {
+    @objc func sceneWillTDeactivate(notification: Notification) {
         self.chartViewModels.forEach { $0.storeFundamentalToDisc()}
+        for list in symbolsLists {
+            debugPrint("\(list.name) isActive: \(list.isActive)")
+        }
     }
     
-    
-
     
     func setRssSubscription() {
         rssSubscription = rssSubject

@@ -21,12 +21,25 @@ struct CustomInformationView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 0) {
                 Text(formattedTextFor(value: price, signed: false))
-                Text(" " + formattedTextFor(value: priceChange, signed: true) ).foregroundColor(Color(foregroundColor(for: priceChange)))
-                Text(" (" + formattedTextFor(value: priceChangePercent, signed: true) + "%)").foregroundColor(Color(foregroundColor(for: priceChangePercent)))
+                    
+                    .lineLimit(1)
+                Text(" " + formattedTextFor(value: priceChange, signed: true))
+                    
+                    .lineLimit(1)
+                    .foregroundColor(Color(foregroundColor(for: priceChange)))
+                Text(" (" + formattedTextFor(value: priceChangePercent, signed: true) + "%)")
+                    
+                .lineLimit(1)
+                    .foregroundColor(Color(foregroundColor(for: priceChangePercent)))
             }
+            
+
             Text(marketStateText ?? "").fontWeight(.bold)
+            .foregroundColor(Color(.systemGray))
+
             self.viewForDate(time, timeZone: timeZone)
         }
+        .font(.subheadline)
     }
     
     
@@ -57,6 +70,7 @@ struct CustomInformationView: View {
         
         return VStack(alignment: .leading, spacing: 0) {
             Text(self.stringFromDateInSeconds(date: date ?? Int(Date().timeIntervalSince1970), timeZone: timeZone ?? "UTC"))
+            
             Text(self.stringFromDateInDays(date: date ?? Int(Date().timeIntervalSince1970), timeZone: timeZone ?? "UTC"))
         }
     }

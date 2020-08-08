@@ -27,13 +27,11 @@ class GraphView: UIView {
             if let timeStamp = viewModel.chart?.chart?.result?.first??.timestamp,
                 let meta = viewModel.chart?.chart?.result?.first??.meta,
                 let quote = viewModel.chart?.chart?.result?.first??.indicators?.quote?.first,
-                let extremums = viewModel.chartExtremums,
                 let timeMarkerCount = viewModel.timeMarkerCount,
                 let chartPreviousClose = meta.chartPreviousClose
             {
                 if timeStamp.count > 0 {
                     let size = rect.size
-                    let rangeY = extremums.lowMin..<extremums.highMax
                     
                     
                     let stepX = size.width / CGFloat(timeMarkerCount)
@@ -48,29 +46,29 @@ class GraphView: UIView {
                     
                     context.move(to: CGPoint(
                         x: 0,
-                        y: coordinateY(price: chartPreviousClose, size: size, rangeY: rangeY)))
+                        y: coordinateY(price: chartPreviousClose, size: size)))
                     
                     context.addLine(to: CGPoint(
                         x: 0,
-                        y: coordinateY(price: (quote.open?[0] ?? chartPreviousClose), size: size, rangeY: rangeY)))
+                        y: coordinateY(price: (quote.open?[0] ?? chartPreviousClose), size: size)))
                     
                     context.setStrokeColor(((quote.close?[0] ?? chartPreviousClose) - chartPreviousClose).sign == .plus ? UIColor.systemGreen.cgColor : UIColor.systemRed.cgColor)
 
                     for index in 1..<timeStamp.count {
                         
                         //if let close = quote.close, let _ = close[index] {
-                        if (priceForIndex(index) - chartPreviousClose).sign == (priceForIndex(index - 1) - chartPreviousClose).sign {
+                        if (self.viewModel.priceForIndex(index) - chartPreviousClose).sign == (self.viewModel.priceForIndex(index - 1) - chartPreviousClose).sign {
                                 
-                                context.setStrokeColor((priceForIndex(index) - chartPreviousClose).sign == .plus ? UIColor.systemGreen.cgColor : UIColor.systemRed.cgColor)
+                                context.setStrokeColor((self.viewModel.priceForIndex(index) - chartPreviousClose).sign == .plus ? UIColor.systemGreen.cgColor : UIColor.systemRed.cgColor)
                             
                                 context.addLine(to: CGPoint(
                                     x: CGFloat(index) * stepX,
-                                    y: coordinateY(price: priceForIndex(index), size: size, rangeY: rangeY)))
+                                    y: coordinateY(price: self.viewModel.priceForIndex(index), size: size)))
                             } else {
                                 
                                 context.addLine(to: CGPoint(
                                     x: betweenCoordinateX(index: index, deltaX: stepX),
-                                    y: coordinateY(price: chartPreviousClose, size: size, rangeY: rangeY)))
+                                    y: coordinateY(price: chartPreviousClose, size: size)))
                                 
                                 clippingPath.append(UIBezierPath(cgPath: context.path!))
                                 
@@ -79,7 +77,7 @@ class GraphView: UIView {
                                 context.beginPath()
                                 context.move(to: CGPoint(
                                     x: betweenCoordinateX(index: index, deltaX: stepX),
-                                    y: coordinateY(price: chartPreviousClose, size: size, rangeY: rangeY)))
+                                    y: coordinateY(price: chartPreviousClose, size: size)))
                             }
                     }
                     
@@ -87,20 +85,20 @@ class GraphView: UIView {
                     
                     clippingPath.addLine(to: CGPoint(
                         x: clippingPath.bounds.origin.x + clippingPath.bounds.size.width,
-                        y: coordinateY(price: chartPreviousClose, size: size, rangeY: rangeY)))
+                        y: coordinateY(price: chartPreviousClose, size: size)))
                     
                     context.strokePath()
                     
                     clippingPath.addClip()
-                    gradientFill(context: context, size: size, rangeY: rangeY)
+                    gradientFill(context: context, size: size)
                     
                     context.move(to: CGPoint(
                         x: 0,
-                        y: coordinateY(price: chartPreviousClose, size: size, rangeY: rangeY)))
+                        y: coordinateY(price: chartPreviousClose, size: size)))
                     
                     context.addLine(to: CGPoint(
                         x: 0,
-                        y: coordinateY(price: quote.close?[0] ?? chartPreviousClose, size: size, rangeY: rangeY)))
+                        y: coordinateY(price: quote.close?[0] ?? chartPreviousClose, size: size)))
                     
                     context.setStrokeColor(UIColor.systemBackground.withAlphaComponent(0.5).cgColor)
                     context.strokePath()
@@ -109,10 +107,10 @@ class GraphView: UIView {
                     
                     context.move(to: CGPoint(
                         x: 0,
-                        y: coordinateY(price: chartPreviousClose, size: size, rangeY: rangeY)))
+                        y: coordinateY(price: chartPreviousClose, size: size)))
                     context.addLine(to: CGPoint(
                         x: size.width,
-                        y: coordinateY(price: chartPreviousClose, size: size, rangeY: rangeY)))
+                        y: coordinateY(price: chartPreviousClose, size: size)))
                     context.setLineDash(phase: 0.0, lengths: [2.0, 2.0])
                     context.setStrokeColor(UIColor.systemGray.cgColor)
                     
@@ -125,49 +123,21 @@ class GraphView: UIView {
         }
         
         private func betweenCoordinateX(index: Int, deltaX: CGFloat) -> CGFloat {
-            //print(index)
             
             guard let quote = viewModel.chart?.chart?.result?.first??.indicators?.quote?.first,
                 let meta = viewModel.chart?.chart?.result?.first??.meta, let chartPreviousClose = meta.chartPreviousClose else { return 0 }
-            //debugPrint("chartPreviousClose = \(chartPreviousClose)")
-            //debugPrint("priceForIndex(\(index) = \(priceForIndex(index))")
-            
-            
-            let previousPrice = (index == 1 ? (quote.close?[0] ?? chartPreviousClose) : (priceForIndex(index - 1)))
-            //debugPrint("previousPrice = \(previousPrice)")
-            
-            let deltaY = CGFloat(priceForIndex(index) - previousPrice)
-            
-            //debugPrint("deltaY = \(deltaY)")
-            
+            let previousPrice = (index == 1 ? (quote.close?[0] ?? chartPreviousClose) : (self.viewModel.priceForIndex(index - 1)))
+            let deltaY = CGFloat(self.viewModel.priceForIndex(index) - previousPrice)
             let differential = deltaX / deltaY
-            
-            
-            let coordinateX = deltaX * CGFloat(index - 1) + CGFloat(priceForIndex(index) - chartPreviousClose) * differential
-            //debugPrint("coordinateX = \(coordinateX)")
-            
+            let coordinateX = deltaX * CGFloat(index - 1) + CGFloat(self.viewModel.priceForIndex(index) - chartPreviousClose) * differential
             return coordinateX
         }
         
-        private func priceForIndex(_ index: Int) -> Double {
-            
-            guard let quote = viewModel.chart?.chart?.result?.first??.indicators?.quote?.first,
-            let meta = viewModel.chart?.chart?.result?.first??.meta, let chartPreviousClose = meta.chartPreviousClose else { return 0 }
-            
-            if let close = quote.close?[index] {
-                return close
-            } else {
-                var nonNullIndex = index
-                while quote.close?[nonNullIndex] == nil || quote.open?[nonNullIndex] == nil || quote.low?[nonNullIndex] == nil || quote.high?[nonNullIndex] == nil {
-                    nonNullIndex = nonNullIndex - 1
-                }
-                return quote.close?[nonNullIndex] ?? chartPreviousClose
-            }
-        }
-        
-        private func coordinateY(price: Double, size: CGSize, rangeY: Range<Double>) -> CGFloat {
+        private func coordinateY(price: Double, size: CGSize) -> CGFloat {
     
-            guard let meta = viewModel.chart?.chart?.result?.first??.meta, let chartPreviousClose = meta.chartPreviousClose else { return 0 }
+            guard let meta = viewModel.chart?.chart?.result?.first??.meta, let chartPreviousClose = meta.chartPreviousClose,  let extremums = viewModel.chartExtremums else { return 0 }
+            
+            let rangeY = extremums.lowMin..<extremums.highMax
             
             let maxY = CGFloat(chartPreviousClose) > CGFloat(rangeY.upperBound) ? CGFloat(chartPreviousClose) : CGFloat(rangeY.upperBound)
             let minY = CGFloat(chartPreviousClose) < CGFloat(rangeY.lowerBound) ? CGFloat(chartPreviousClose) : CGFloat(rangeY.lowerBound)
@@ -175,9 +145,10 @@ class GraphView: UIView {
             return size.height * (1 - (CGFloat(price) - minY) / (maxY - minY))
         }
         
-        private func gradientFill(context: CGContext, size: CGSize, rangeY: Range<Double>) {
+        private func gradientFill(context: CGContext, size: CGSize) {
             
-            guard let meta = viewModel.chart?.chart?.result?.first??.meta, let chartPreviousClose = meta.chartPreviousClose else {return}
+            guard let meta = viewModel.chart?.chart?.result?.first??.meta, let chartPreviousClose = meta.chartPreviousClose, let extremums = viewModel.chartExtremums else {return}
+            let rangeY = extremums.lowMin..<extremums.highMax
                 
             let colors = [UIColor.systemGreen.withAlphaComponent(0.1).cgColor, UIColor.systemBackground.withAlphaComponent(1.0).cgColor, UIColor.systemRed.withAlphaComponent(0.1).cgColor]
             let colorSpace = CGColorSpaceCreateDeviceRGB()
