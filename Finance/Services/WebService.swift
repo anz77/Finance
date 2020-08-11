@@ -107,9 +107,15 @@ enum WebService {
         return (urlComponents?.url)!
     }
     
+//    static func makeSearchURL(index: String) -> URL {
+//        let symbols = index.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)!
+//        return URL(string: "https://autoc.finance.yahoo.com/autoc?query=\(symbols)&region=US&lang=en")!
+//    }
+    
     static func makeSearchURL(index: String) -> URL {
         let symbols = index.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)!
-        return URL(string: "https://autoc.finance.yahoo.com/autoc?query=\(symbols)&region=US&lang=en")!
+        return URL(string: "https://finance.yahoo.com/_finance_doubledown/api/resource/searchassist;searchTerm=\(symbols)?device=console&returnMeta=true")!
+        
     }
     
 
@@ -140,7 +146,8 @@ enum WebService {
                 if decodableType == HistoricalChart.self {
                     //print(String(data: data, encoding: String.Encoding.utf8)!)
                 }
-                //print(String(data: data, encoding: String.Encoding.utf8)!)
+                print(String(data: data, encoding: String.Encoding.utf8)!)
+                //debugPrint(url)
                 return data
             })
             //.receive(on: DispatchQueue.main)
@@ -357,3 +364,8 @@ enum WebService {
     }
     
 }
+
+
+// https://query1.finance.yahoo.com/v10/finance/quoteSummary/SPY?modules=price
+
+// https://finance.yahoo.com/_finance_doubledown/api/resource/searchassist;searchTerm=gazp.me?device=console&returnMeta=true

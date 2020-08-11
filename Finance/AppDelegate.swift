@@ -22,14 +22,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func isAppAlreadyLaunchedOnce() -> Bool {
         let defaults = UserDefaults.standard
         
-        defaults.set(true, forKey: "isAppAlreadyLaunchedOnce")
+        //defaults.set(true, forKey: "isAppAlreadyLaunchedOnce")
 
         if defaults.string(forKey: "isAppAlreadyLaunchedOnce") != nil {
-            //debugPrint("App already launched sometimes")
+            debugPrint("App already launched sometimes")
             return true
         } else {
             defaults.set(true, forKey: "isAppAlreadyLaunchedOnce")
-            //debugPrint("App launched first time")
+            debugPrint("App launched first time")
             return false
         }
     }

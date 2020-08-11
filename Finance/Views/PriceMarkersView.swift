@@ -57,8 +57,13 @@ struct PriceMarkersView: View {
                     guard let meta = self.viewModel.chart?.chart?.result?.first??.meta, let chartPreviousClose = meta.chartPreviousClose, let minY = self.viewModel.chartExtremums?.lowMin, let maxY = self.viewModel.chartExtremums?.highMax else { return 0 }
                     let rangeY = minY..<maxY
                     let max = CGFloat(chartPreviousClose) > CGFloat(rangeY.upperBound) ? CGFloat(chartPreviousClose) : CGFloat(rangeY.upperBound)
-                        let min = CGFloat(chartPreviousClose) < CGFloat(rangeY.lowerBound) ? CGFloat(chartPreviousClose) : CGFloat(rangeY.lowerBound)
-                    return geometry.size.height * (0.5 - (CGFloat(chartPreviousClose) - min) / (max - min))
+                    let min = CGFloat(chartPreviousClose) < CGFloat(rangeY.lowerBound) ? CGFloat(chartPreviousClose) : CGFloat(rangeY.lowerBound)
+                    if max - min != 0 {
+                        return geometry.size.height * (0.5 - (CGFloat(chartPreviousClose) - min) / (max - min))
+                    } else {
+                        return 0.5
+                    }
+                    
                 }())
             }
             .frame(width: geometry.size.width, height: geometry.size.height)

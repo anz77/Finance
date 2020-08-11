@@ -33,7 +33,7 @@ struct DetailChartView: View {
         
         VStack(alignment: .center, spacing: 0) {
             
-            // internet checker view
+//MARK: - internet checker view
             if !self.viewModel.internetChecker {
                 HStack {
                     Spacer()
@@ -48,7 +48,8 @@ struct DetailChartView: View {
                 .padding([.horizontal], 40)
             } // internet checker view end
             
-            
+
+//MARK: - symbol
             if viewModel.fundamental != nil {
                 ScrollView(.vertical, showsIndicators: true) {
                     
@@ -73,7 +74,7 @@ struct DetailChartView: View {
                                 
                                 
                                 
-                                // Add symbol to symbols lists BUTTON
+//MARK: - Add symbol to symbols lists BUTTON
                                 if !self.symbolsListsContainVewModelSymbol() {
                                     Button(action: {
                                         self.storeSymbol = true
@@ -98,7 +99,19 @@ struct DetailChartView: View {
                                                     guard let symbol = self.viewModel.symbol else {return}
                                                     self.mainViewModel.symbolsLists[index].symbolsArray.append(symbol)
                                                     
-                                                    let viewModel = ChartViewModel(withSymbol: symbol, isDetailViewModel: false)
+                                                    let viewModel = ChartViewModel(withSymbol: symbol)
+                                                    
+                                                    
+                                                    if self.viewModel.internetChecker {
+                                                        if self.mainViewModel.symbolsLists[index].isActive {
+                                                            viewModel.mode = .active
+                                                        } else {
+                                                            viewModel.mode = .hidden
+                                                        }
+                                                    } else {
+                                                        viewModel.mode = .waiting
+                                                    }
+                                                    
                                                     viewModel.fundamental = self.viewModel.fundamental
                                                     self.mainViewModel.chartViewModels.append(viewModel)
                                                     self.storeSymbol.toggle()
@@ -106,6 +119,38 @@ struct DetailChartView: View {
                                                     Text(self.mainViewModel.symbolsLists[index].name)
                                                         .font(.body)
                                                         .fontWeight(.bold)
+                                                }
+                                            }
+                                            
+                                            Button(action: {
+                                                guard let symbol = self.viewModel.symbol else {return}
+                                                
+                                                self.mainViewModel.symbolsLists.insert(SymbolsList(name: "New List", symbolsArray: [symbol], isActive: true), at: 0)
+                                                
+                                                
+                                                let viewModel = ChartViewModel(withSymbol: symbol)
+                                                
+                                                
+                                                if self.viewModel.internetChecker {
+                                                    if self.mainViewModel.symbolsLists[0].isActive {
+                                                        viewModel.mode = .active
+                                                    } else {
+                                                        viewModel.mode = .hidden
+                                                    }
+                                                } else {
+                                                    viewModel.mode = .waiting
+                                                }
+                                                
+                                                viewModel.fundamental = self.viewModel.fundamental
+                                                self.mainViewModel.chartViewModels.append(viewModel)
+                                                self.storeSymbol.toggle()
+                                                
+                                                
+                                            }) {
+                                                HStack(alignment: .center, spacing: 0) {
+                                                    Image(systemName: "plus.circle")//.padding()
+                                                    
+                                                    Text(" Add to \"New List\"").padding()
                                                 }
                                             }
                                         }
@@ -117,6 +162,8 @@ struct DetailChartView: View {
                             .frame(height: 45)
                             .padding([.bottom], 5)
                             
+                            
+//MARK: - quoteType
                             HStack(alignment: .top, spacing: 0) {
                                 
                                 VStack(alignment: .leading, spacing: 0) {
@@ -125,9 +172,6 @@ struct DetailChartView: View {
                                             .fontWeight(.bold)
                                             .lineLimit(1)
                                             .foregroundColor(Color(.systemGray))
-                                            //.padding(.horizontal, 10)
-                                            //.background(Color(.systemGray5))
-                                            //.cornerRadius(5)
                                     }
                                 }
                                 
@@ -154,14 +198,12 @@ struct DetailChartView: View {
                             }
                             
                             
-                            
-                            
+ //MARK: - custom infoermation view
                             HStack(alignment: .center, spacing: 0) {
                                 if indicatorViewIsVisible == false {
                                     Text(formattedTextForDouble(value: self.quote?.regularMarketPrice, signed: false) ?? "N/A")
                                         .font(.largeTitle)
                                         .fontWeight(.heavy)
-                                    
                                 } else {
                                     if (timeStampIndex ?? 0) < (timeStampCount ?? 0) {
                                         Text(formattedTextForDouble(value: priceForIndex(timeStampIndex ?? 0), signed: false) ?? "N/A")
@@ -197,14 +239,14 @@ struct DetailChartView: View {
                                     }
                                 }
                             }
-                            //.font(.caption)
 
                         }
                         .padding()
                         
                         
                         
-                        ////////////////////////////
+//MARK: - quote, marketState, currency
+                        
                         VStack(spacing: 0) {
                             Spacer()
                                 .frame(height: 10)
@@ -223,7 +265,6 @@ struct DetailChartView: View {
 
                                 Text(self.quote?.marketState?.rawValue ?? "")
                                     .padding(.horizontal, 10)
-                                    //.padding(.vertical, 5)
                                     .background(Color(.systemGray5))
                                     .cornerRadius(5)
                                 .lineLimit(1)
@@ -237,57 +278,52 @@ struct DetailChartView: View {
                         }
 
                         
-                        
+//MARK: - GraphViewUIKit, IndicatorView,
+
                         VStack(alignment: .center, spacing: 0) {
                             
-                                ZStack(alignment: .center) {
+                            ZStack(alignment: .center) {
+                                
+                                if chartQuote != nil {
                                     
-                                    if chartQuote != nil {
+                                    GraphViewUIKit(viewModel: self.viewModel)
+                                    
+                                    if indicatorViewIsVisible == false {
+                                        PriceMarkersView(viewModel: viewModel)
+                                    }
+                                    
+                                    IndicatorView(indicatorViewIsVisible: $indicatorViewIsVisible, timeStampIndex: $timeStampIndex, viewModel: self.viewModel)
+                                    
+                                    if self.viewModel.period.rawValue != self.chartMeta?.range {
                                         
-                                        
-                                            GraphViewUIKit(viewModel: self.viewModel)
-                                            
-                                            if indicatorViewIsVisible == false {
-                                                PriceMarkersView(viewModel: viewModel)
-                                            }
-                                            
-                                            IndicatorView(indicatorViewIsVisible: $indicatorViewIsVisible, timeStampIndex: $timeStampIndex, viewModel: self.viewModel)
-                                        
-                                        if self.viewModel.period.rawValue != self.chartMeta?.range {
-                                        
-                                            ActivityIndicator(shouldAnimate: .constant(true))
-                                            //Text("Chart not available")
-                                        }
-                                        
-                                       
-                                        
-                                        
-                                    } else {
                                         ActivityIndicator(shouldAnimate: .constant(true))
                                         //Text("Chart not available")
                                     }
                                     
+                                    
+                                    
+                                    
+                                } else {
+                                    ActivityIndicator(shouldAnimate: .constant(true))
+                                    //Text("Chart not available")
                                 }
-                                .frame(height: 180, alignment: .center)
-                                .padding(10)
-                                .onReceive(viewModel.$chart) { chart in
-                                    withAnimation(.linear) {
-                                        
-                                    }
+                                
+                            }
+                            .frame(height: 180, alignment: .center)
+                            .padding(10)
+                            .onReceive(viewModel.$chart) { chart in
+                                withAnimation(.linear) {
+                                    
+                                }
                             }
                             
-                             
-                            
-                            
-                            
-                            
-                            
+//MARK: - TimeMarkersView
                             TimeMarkersView(viewModel: self.viewModel)
                                 .frame(height: 20)
                                 .padding([.leading, .trailing], 10)
                             
                             
-                            ///////////////////////////////////////////////////////
+//MARK: - Picker
                             Picker(selection: $viewModel.period, label: Text("")) {
                                 ForEach(0..<self.viewModel.periods.count) { index in
                                     Text(self.viewModel.periods[index].rawValue.uppercased())
@@ -303,7 +339,7 @@ struct DetailChartView: View {
                     
                     
                     
-                    
+//MARK: - KeyStatisticsView
                     KeyStatisticsView(viewModel: self.viewModel)
                         .padding()
                         .background(Color(.systemBackground))
@@ -316,7 +352,7 @@ struct DetailChartView: View {
                     
                     
                     
-                    // RSS
+//MARK: -  RSS
                     ZStack {
                         
                         NavigationLink("RSS", destination: {

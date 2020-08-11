@@ -15,6 +15,7 @@ struct SettingsView: View {
         
         VStack {
             Text("Settings")
+                .font(.title)
             
             Toggle(isOn: Binding<Bool>(
                 get: {
@@ -29,12 +30,6 @@ struct SettingsView: View {
                 Text("Set Dark Mode")
             }
         .padding()
-            
-            //            Toggle(isOn: $isDarkMode) {
-            //                //Text("hello")
-            //                Text(isDarkMode ? "Dark mode" : "Light Mode")
-            //            }
-            //            .padding()
             
         }
         

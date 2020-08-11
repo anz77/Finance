@@ -463,3 +463,5 @@ public enum MarketState: String, Codable {
     case post = "POST"
     case undefined
 }
+
+

@@ -44,29 +44,23 @@ struct WebView: UIViewRepresentable {
     
     func makeUIView(context: Context) -> WKWebView {
         let webView = WKWebView()
-        let elementID = "YDC-UH"
+//        let elementID = "YDC-UH"
+//
+//        var scriptString: String {
+//            return """
+//            var element = document.getElementById('\(elementID)'); element.parentElement.removeChild(element);
+//            """
+//        }
+//
+//        let script = WKUserScript(source: scriptString, injectionTime: WKUserScriptInjectionTime.atDocumentStart, forMainFrameOnly: true)
+//        let config = webView.configuration
+//        config.userContentController.addUserScript(script)
         
-        //let scriptString = "var element = document.getElementById('\(elementID)'); element.parentElement.removeChild(element);"
-        
-        var scriptString: String {
-            return """
-            var element = document.getElementById('\(elementID)'); element.parentElement.removeChild(element);
-            """
-        }
-
-        let script = WKUserScript(source: scriptString, injectionTime: WKUserScriptInjectionTime.atDocumentStart, forMainFrameOnly: true)
-        let config = webView.configuration
-        config.userContentController.addUserScript(script)
-        
-       // webView.navigationDelegate = context.coordinator
         webView.load(URLRequest(url: url!))
         return webView
     }
     
     func updateUIView(_ webView: WKWebView, context: Context) {
-//        webView.navigationDelegate = context.coordinator
-//        webView.load(URLRequest(url: url!))
-       // webView.reload()
         
     }
     

@@ -1,21 +1,23 @@
 //
-//  GraphViewUIKit.swift
+//  Graph.swift
 //  Finance
 //
-//  Created by Andrii Zuiok on 29.04.2020.
+//  Created by Andrii Zuiok on 10.08.2020.
 //  Copyright © 2020 Andrii Zuiok. All rights reserved.
 //
-import UIKit
+
+import Foundation
 import SwiftUI
 
 
-class GraphView<ViewModel>: UIView where ViewModel: ChartViewProtocol {
+
+class Graph: UIView  {
     
-    @ObservedObject var viewModel: ViewModel
+    @ObservedObject var viewModel: DetailChartViewModel
     
     var lineWidth: CGFloat = 2
     
-    init(chartViewModel: ObservedObject<ViewModel>) {
+    init(chartViewModel: ObservedObject<DetailChartViewModel>) {
         _viewModel = chartViewModel
         super.init(frame: CGRect.zero)
     }
@@ -25,92 +27,88 @@ class GraphView<ViewModel>: UIView where ViewModel: ChartViewProtocol {
     }
     
     override func draw(_ rect: CGRect) {
-        
             
             if let timeStamp = viewModel.chart?.chart?.result?.first??.timestamp,
                 let meta = viewModel.chart?.chart?.result?.first??.meta,
                 let quote = viewModel.chart?.chart?.result?.first??.indicators?.quote?.first,
                 let timeMarkerCount = viewModel.timeMarkerCount,
                 let chartPreviousClose = meta.chartPreviousClose
-
             {
                 if timeStamp.count > 0 {
-
-
                     let size = rect.size
-
-
+                    
+                    
                     let stepX = size.width / CGFloat(timeMarkerCount)
-
+                    
                     //let stepX = size.width / (timeMarkerCount - CGFloat(timeStamp.count) + CGFloat(flatArray.count))
-
+                    
                     let clippingPath = UIBezierPath()
-
+                    
                     let context = UIGraphicsGetCurrentContext()!
-
+                    
                     context.beginPath()
-
+                    
                     context.move(to: CGPoint(
                         x: 0,
                         y: coordinateY(price: chartPreviousClose, size: size)))
-
+                    
                     context.addLine(to: CGPoint(
                         x: 0,
                         y: coordinateY(price: (quote.open?[0] ?? chartPreviousClose), size: size)))
-
+                    
                     context.setStrokeColor(((quote.close?[0] ?? chartPreviousClose) - chartPreviousClose).sign == .plus ? UIColor.systemGreen.cgColor : UIColor.systemRed.cgColor)
 
                     for index in 1..<timeStamp.count {
-
+                        
                         //if let close = quote.close, let _ = close[index] {
                         if (self.viewModel.priceForIndex(index) - chartPreviousClose).sign == (self.viewModel.priceForIndex(index - 1) - chartPreviousClose).sign {
-
+                                
                                 context.setStrokeColor((self.viewModel.priceForIndex(index) - chartPreviousClose).sign == .plus ? UIColor.systemGreen.cgColor : UIColor.systemRed.cgColor)
-
+                            
                                 context.addLine(to: CGPoint(
                                     x: CGFloat(index) * stepX,
                                     y: coordinateY(price: self.viewModel.priceForIndex(index), size: size)))
                             } else {
-
+                                
                                 context.addLine(to: CGPoint(
                                     x: betweenCoordinateX(index: index, deltaX: stepX),
                                     y: coordinateY(price: chartPreviousClose, size: size)))
-
+                                
                                 clippingPath.append(UIBezierPath(cgPath: context.path!))
-
+                                
                                 context.strokePath()
-
+                                
                                 context.beginPath()
                                 context.move(to: CGPoint(
                                     x: betweenCoordinateX(index: index, deltaX: stepX),
                                     y: coordinateY(price: chartPreviousClose, size: size)))
                             }
                     }
-
+                    
                     clippingPath.append(UIBezierPath(cgPath: context.path!))
-
+                    
                     clippingPath.addLine(to: CGPoint(
                         x: clippingPath.bounds.origin.x + clippingPath.bounds.size.width,
                         y: coordinateY(price: chartPreviousClose, size: size)))
-
+                    
                     context.strokePath()
-
+                    
                     clippingPath.addClip()
                     gradientFill(context: context, size: size)
-
+                    
                     context.move(to: CGPoint(
                         x: 0,
                         y: coordinateY(price: chartPreviousClose, size: size)))
-
+                    
                     context.addLine(to: CGPoint(
                         x: 0,
                         y: coordinateY(price: quote.close?[0] ?? chartPreviousClose, size: size)))
-
+                    
                     context.setStrokeColor(UIColor.systemBackground.withAlphaComponent(0.5).cgColor)
                     context.strokePath()
-
+                    
                     context.resetClip()
-
+                    
                     context.move(to: CGPoint(
                         x: 0,
                         y: coordinateY(price: chartPreviousClose, size: size)))
@@ -119,7 +117,7 @@ class GraphView<ViewModel>: UIView where ViewModel: ChartViewProtocol {
                         y: coordinateY(price: chartPreviousClose, size: size)))
                     context.setLineDash(phase: 0.0, lengths: [2.0, 2.0])
                     context.setStrokeColor(UIColor.systemGray.cgColor)
-
+                    
                     //context.setStrokeColor((meta.regularMarketPrice ?? 0) > chartPreviousClose ? UIColor.systemGreen.cgColor : UIColor.systemRed.withAlphaComponent(0.7).cgColor)
                     context.setLineWidth(1)
 
@@ -148,11 +146,13 @@ class GraphView<ViewModel>: UIView where ViewModel: ChartViewProtocol {
             let maxY = CGFloat(chartPreviousClose) > CGFloat(rangeY.upperBound) ? CGFloat(chartPreviousClose) : CGFloat(rangeY.upperBound)
             let minY = CGFloat(chartPreviousClose) < CGFloat(rangeY.lowerBound) ? CGFloat(chartPreviousClose) : CGFloat(rangeY.lowerBound)
             
+            
             if maxY - minY != 0 {
                 return size.height * (1 - (CGFloat(price) - minY) / (maxY - minY))
             } else {
                 return size.height * 0.5
             }
+            
         }
         
         private func gradientFill(context: CGContext, size: CGSize) {
@@ -175,22 +175,24 @@ class GraphView<ViewModel>: UIView where ViewModel: ChartViewProtocol {
         }
 }
 
-struct GraphViewUIKit<ViewModel>: UIViewRepresentable where ViewModel: ChartViewProtocol {
-    @ObservedObject var viewModel: ViewModel
+struct GraphViewUI: UIViewRepresentable  {
+    @ObservedObject var viewModel: DetailChartViewModel
  
-    func makeUIView(context: UIViewRepresentableContext<GraphViewUIKit<ViewModel>>) -> UIView {
+    func makeUIView(context: UIViewRepresentableContext<GraphViewUI>) -> UIView {
         let graphView = GraphView(chartViewModel: _viewModel)
         graphView.backgroundColor = .clear
         return graphView
     }
     
-    func updateUIView(_ uiView: UIView, context: UIViewRepresentableContext<GraphViewUIKit<ViewModel>>) {
+    func updateUIView(_ uiView: UIView, context: UIViewRepresentableContext<GraphViewUI>) {
         uiView.setNeedsDisplay()
     }
 }
 
-struct GraphViewUIKit_Previews: PreviewProvider {
+
+
+struct GraphViewUI_Previews: PreviewProvider {
     static var previews: some View {
-        GraphViewUIKit(viewModel: DetailChartViewModel(withJSON: "AAPL"))
+        GraphViewUI(viewModel: DetailChartViewModel(withJSON: "ALUM"))
     }
 }

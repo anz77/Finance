@@ -27,16 +27,16 @@ final class MainViewModel: ObservableObject, Identifiable {
         }
     }
 
-    var chartViewModels: [ChartViewModel] = []
+    @Published var chartViewModels: [ChartViewModel] = []
 
-    var symbolsLists: [SymbolsList] = [] {
+    
+    @Published var symbolsLists: [SymbolsList] = [] {
         didSet {
             storeDefaultsFromSymbolLists(symbolsLists)
-            
-            for list in symbolsLists {
-                debugPrint("\(list.name) isActive: \(list.isActive)")
-            }
         }
+//        willSet {
+//            objectWillChange.send()
+//        }
     }
     
     var detailViewModel: DetailChartViewModel?
@@ -59,20 +59,26 @@ final class MainViewModel: ObservableObject, Identifiable {
     var rssSubscription: AnyCancellable?
     var rssSubject = PassthroughSubject<Void, WebServiceError>()
     
-    
     init() {
         self.symbolsLists = [SymbolsList]()
         self.chartViewModels = [ChartViewModel]()
         self.internetChecker = true
     }
-
+    
     init(from symbolsLists: [SymbolsList], internetChecker: Bool = true) {
         self.symbolsLists = symbolsLists
         self.internetChecker = internetChecker
         var chartViewModels: [ChartViewModel] = []
         for list in self.symbolsLists {
             for symbol in list.symbolsArray {
-                let viewModel = ChartViewModel(withSymbol: symbol, isDetailViewModel: false, internetChecker: self.internetChecker)
+                let viewModel = ChartViewModel(withSymbol: symbol, internetChecker: self.internetChecker)
+                
+                if internetChecker {
+                    viewModel.mode = list.isActive ? .active : .hidden
+                } else {
+                    viewModel.mode = list.isActive ? .waiting : .hidden
+                }
+                
                 chartViewModels.append(viewModel)
             }
         }
@@ -88,10 +94,6 @@ final class MainViewModel: ObservableObject, Identifiable {
         NotificationCenter.default.addObserver(self, selector: #selector(sceneWillTDeactivate(notification:)), name: UIScene.willDeactivateNotification, object: nil)
         
         checkInternetAvailabilityIfChangedPreviousValue(internetChecker)
-        
-        for list in symbolsLists {
-            debugPrint("\(list.name) isActive: \(list.isActive)")
-        }
         
     }
     
@@ -118,7 +120,7 @@ final class MainViewModel: ObservableObject, Identifiable {
                 return chartViewModels[index]
             }
         }
-        return ChartViewModel(withSymbol: "", isDetailViewModel: false)
+        return ChartViewModel(withSymbol: "")
     }
     
     @objc func sceneWillTDeactivate(notification: Notification) {

@@ -71,6 +71,6 @@ struct TimeMarkersView: View {
 
 struct TimeMarkersView_Previews: PreviewProvider {
     static var previews: some View {
-        TimeMarkersView(viewModel: DetailChartViewModel(withJSON: "AAPL"))
+        TimeMarkersView(viewModel: DetailChartViewModel(withJSON: "ALUM"))
     }
 }

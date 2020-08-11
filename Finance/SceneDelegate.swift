@@ -27,10 +27,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             
             //window.overrideUserInterfaceStyle = .dark
             
-            
-            
-            //UILabel.appearance().adjustsFontForContentSizeCategory = false
-            
             let style = UserDefaults.standard.integer(forKey: "LastStyle")
             window.overrideUserInterfaceStyle = (style == 0 ? .dark : UIUserInterfaceStyle(rawValue: style)!)
             
@@ -38,7 +34,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             
             self.window = window
             window.makeKeyAndVisible()
-            
             
         }
     }

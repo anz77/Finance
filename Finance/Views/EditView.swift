@@ -32,7 +32,9 @@ class EditTableViewController: UIViewController {
     lazy var tableView: UITableView = {
         let tableView = UITableView(frame: CGRect.zero, style: UITableView.Style.grouped)
         tableView.contentInset = UIEdgeInsets(top: -20, left: 0, bottom: 100, right: 0)
+        
         tableView.isEditing = true
+        
         //tableView.contentInset.bottom += 40
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
@@ -49,9 +51,9 @@ class EditTableViewController: UIViewController {
     
     @objc func cancel() {
         
-        mainViewModel.chartViewModels.forEach{ viewModel in
-            viewModel.start()
-        }
+//        mainViewModel.chartViewModels.forEach{ viewModel in
+//            viewModel.start()
+//        }
         
         self.dismiss(animated: true) {}
     }
@@ -75,13 +77,15 @@ class EditTableViewController: UIViewController {
         for symbol in symbolsForDeleting {
             for index in 0..<mainViewModel.chartViewModels.count {
                 if mainViewModel.chartViewModels[index].symbol == symbol {
-                    mainViewModel.chartViewModels[index].cancelSubscriptions()
+                    mainViewModel.chartViewModels[index].mode = .remove
                     mainViewModel.chartViewModels.remove(at: index)
                     break
                 }
             }
         }
         
+        
+        // deleting files from disc storage
         let files = StorageService.getSymbolsFiles()
         
         for file in files {
@@ -112,12 +116,18 @@ class EditTableViewController: UIViewController {
             }
             
         }
-        
-        mainViewModel.chartViewModels.forEach{ viewModel in
-            viewModel.start()
+
+        self.mainViewModel.symbolsLists.forEach { list in
+            list.symbolsArray.forEach { symbol in
+                
+                if list.isActive {
+                    self.mainViewModel.modelWithId(symbol).mode = self.mainViewModel.internetChecker ? .active : .waiting
+                } else {
+                    self.mainViewModel.modelWithId(symbol).mode = .hidden
+                }
+            }
         }
-        
-        //debugPrint(mainViewModel.chartViewModels.count)
+
         self.dismiss(animated: true) {}
     }
     
@@ -128,6 +138,7 @@ class EditTableViewController: UIViewController {
         button.layer.borderWidth = 1
         button.layer.cornerRadius = 5
         button.setTitle("Edit Lists", for: UIControl.State.normal)
+        button.setImage(UIImage(systemName: "pencil"), for: UIControl.State.normal)
         button.setTitleColor(UIColor.systemBlue, for: UIControl.State.normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(editLists), for: UIControl.Event.touchUpInside)
@@ -136,26 +147,25 @@ class EditTableViewController: UIViewController {
     
     @objc func editLists() {
         
-        if editListsEnabled == true {
+        if editListsEnabled {
             editListsButton.setTitle("Edit Lists", for: UIControl.State.normal)
             editListsEnabled = false
             tableView.reloadData()
-            
         } else {
             editListsButton.setTitle("Edit Symbols", for: UIControl.State.normal)
             editListsEnabled = true
             tableView.reloadData()
-
         }
     }
     
     lazy var addNewListButton: UIButton = {
-        var button = UIButton()
+        var button = UIButton(type: UIButton.ButtonType.custom)
         button.layer.borderColor = UIColor.black.cgColor
         button.contentEdgeInsets = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
         button.layer.borderWidth = 1
         button.layer.cornerRadius = 5
-        button.setTitle("Add New List", for: UIControl.State.normal)
+        button.setImage(UIImage(systemName: "plus"), for: UIControl.State.normal)
+        button.setTitle(" Add New List", for: UIControl.State.normal)
         button.setTitleColor(UIColor.systemBlue, for: UIControl.State.normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(addNewList), for: UIControl.Event.touchUpInside)
@@ -164,8 +174,7 @@ class EditTableViewController: UIViewController {
     
     @objc func addNewList() {
         
-        let list = SymbolsList(name: "New List", symbolsArray: [])
-        //self.symbolsLists.append(list)
+        let list = SymbolsList(name: "LIST", symbolsArray: [])
         self.symbolsLists.insert(list, at: 0)
         tableView.reloadData()
     }
@@ -175,7 +184,7 @@ class EditTableViewController: UIViewController {
         super.viewDidLoad()
         
         setupUI()
-        
+            
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         tableView.register(UITableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: "Header")
     }
@@ -317,6 +326,8 @@ extension EditTableViewController: UITableViewDelegate {
                     symbolsLists[indexPath.section].symbolsArray.remove(at: indexPath.row)
                     tableView.deleteRows(at: [indexPath], with: UITableView.RowAnimation.automatic)
                 })
+            case .insert:
+                break
             default: break
             }
         } else {
@@ -329,6 +340,8 @@ extension EditTableViewController: UITableViewDelegate {
                     symbolsLists.remove(at: indexPath.row)
                     tableView.deleteRows(at: [indexPath], with: UITableView.RowAnimation.automatic)
                 })
+            case .insert:
+                break
             default: break
             }
         }

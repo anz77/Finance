@@ -11,9 +11,7 @@ import SwiftUI
 import Combine
 
 struct MainView: View {
-    
-    //@Environment(\.sizeCategory) var sizeCategory
-    
+        
     @State private var searchText : String = ""
     @State var searchedResults: [StockAttributes] = []
     
@@ -28,9 +26,7 @@ struct MainView: View {
     @State var detailIsActive: Bool = false
     
     var body: some View {
-        
-        
-        
+                
         NavigationView {
             
             VStack(alignment: .center, spacing: 0) {
@@ -50,15 +46,10 @@ struct MainView: View {
                     .padding([.horizontal], 40)
                     .cornerRadius(5)
                 } // internet checker view end
-                
-                
-                
-                
+          
                 
                 
                 ScrollView(.vertical, showsIndicators: true, content: {
-                    
-                    
                     
                     HStack(spacing: 0) {
                         Text("Lists:").font(.title).fontWeight(.bold).foregroundColor(Color(.systemGray2))
@@ -80,12 +71,27 @@ struct MainView: View {
                             EditView(mainViewModel: self.mainViewModel)
                                 .background(Color(UIColor.systemGray5.withAlphaComponent(0.5)))
                                 .onAppear {
-                                    self.mainViewModel.chartViewModels.forEach{ $0.stopTimers()}
+                                    /*
+                                    self.mainViewModel.chartViewModels.forEach{
+                                        //$0.stopTimers()
+                                        if $0.mode != .hidden {
+                                            $0.mode = .waiting
+                                        }
+                                    }*/
                                    // debugPrint("EditView Appeared")
+                                    
                             }
                             .onDisappear {
                                 //debugPrint("EditView Disappeared")
                                 self.isEditMode = false
+                                /*
+                                self.mainViewModel.chartViewModels.forEach{
+                                    //$0.start()
+                                    
+                                    if $0.mode != .hidden {
+                                        $0.mode = .active
+                                    }
+                                }*/
                             }
                         }) // sheet
                     }
@@ -101,8 +107,10 @@ struct MainView: View {
                                         DetailChartView(viewModel: self.mainViewModel.detailViewModel ?? DetailChartViewModel(withSymbol: nil, internetChecker: self.mainViewModel.internetChecker))
                                             .onAppear {
                                                 if self.mainViewModel.internetChecker {
-                                                    self.mainViewModel.chartViewModels.forEach{ //$0.stopTimers()
-                                                        $0.cancelSubscriptions()
+                                                    self.mainViewModel.chartViewModels.forEach{
+                                                        if $0.mode != .hidden {
+                                                            $0.mode = .waiting
+                                                        }
                                                     }
                                                 }
                                         }
@@ -112,9 +120,10 @@ struct MainView: View {
                                             self.detailIsActive = false
                                             
                                             if self.mainViewModel.internetChecker {
-                                                self.mainViewModel.chartViewModels.forEach{  viewModel in
-                                                    viewModel.setSubscriptions()
-                                                    viewModel.start()
+                                                self.mainViewModel.chartViewModels.forEach{
+                                                    if $0.mode != .hidden {
+                                                        $0.mode = .active
+                                                    }
                                                 }
                                             }
                                         }
@@ -125,7 +134,7 @@ struct MainView: View {
                                     EmptyView()
                                 }
                             }
-                        //.padding(0)
+
                         }(), isActive: self.$detailIsActive) // NavigationLink
                             .opacity(0)
                         
@@ -133,7 +142,7 @@ struct MainView: View {
                         VStack(spacing: 10) {
                             
                             ForEach(mainViewModel.symbolsLists, id: \.id) { list in
-                                ListView(list: list, mainViewModel: self.mainViewModel, detailIsActive: self.$detailIsActive, isActive: list.isActive)
+                                ListView(list: list, mainViewModel: self.mainViewModel, detailIsActive: self.$detailIsActive)
                             }
                             .id(UUID())
                             
@@ -153,7 +162,7 @@ struct MainView: View {
                     .padding()
                     
                     
-                    //MARK: - RSS
+//MARK: - RSS
                     ZStack {
                         
                         NavigationLink("RSS", destination: {
@@ -162,11 +171,19 @@ struct MainView: View {
                                     if mainViewModel.currentRssUrl != nil {
                                         WebView(url: mainViewModel.currentRssUrl!)
                                             .onAppear {
-                                                self.mainViewModel.chartViewModels.forEach{ $0.stopTimers()}}
+                                                self.mainViewModel.chartViewModels.forEach{
+                                                    if $0.mode != .hidden {
+                                                        $0.mode = .waiting
+                                                    }
+                                                }}
                                             .onDisappear {
                                                 self.rssIsActive = false
                                                 self.mainViewModel.currentRssUrl = nil
-                                                self.mainViewModel.chartViewModels.forEach{ $0.start()}
+                                                self.mainViewModel.chartViewModels.forEach{
+                                                    if $0.mode != .hidden {
+                                                        $0.mode = .active
+                                                    }
+                                                }
                                         }
                                     } else {
                                         EmptyView()
@@ -212,6 +229,7 @@ struct MainView: View {
                         leading: Button(action: { self.isSettingsMode = true }, label: {
                             Image(systemName: "person").foregroundColor(Color(.systemGray))
                         })
+                        .padding()
                             .sheet(isPresented: self.$isSettingsMode, content: {
                                 SettingsView()
                             })
@@ -232,16 +250,28 @@ struct MainView: View {
                             .sheet(isPresented: $isSearchMode, content: {
                                 //SearchView(mainViewModel: self.mainViewModel, detailIsActive: self.$detailIsActive,  isSearchMode: self.$isSearchMode)
                                 SearchViewUI(mainViewModel: self.mainViewModel, detailIsActive: self.$detailIsActive, isSearchMode: self.$isSearchMode)
-                                    .onAppear {}
-                                    .onDisappear {/*UINavigationBar.setAnimationsEnabled(true)*/}
+                                    .onAppear {
+                                        /*
+                                        self.mainViewModel.chartViewModels.forEach {
+                                            if $0.mode != .hidden {
+                                                $0.mode = .waiting
+                                            }
+                                        }*/
+                                        
+                                }
+                                    .onDisappear {
+                                        /*
+                                        self.mainViewModel.chartViewModels.forEach {
+                                            if $0.mode != .hidden {
+                                                $0.mode = .active
+                                            }
+                                        }*/
+                                }
                             }) // sheet
                 ) // navigationBarItems
-                
             }
         } // NavigationView
-        
-        
-        
+
         
     }
     

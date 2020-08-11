@@ -60,7 +60,7 @@ class CustomCell: UITableViewCell {
         NSLayoutConstraint.activate([
             exchangeLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             exchangeLabel.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.15),
-            exchangeLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor, constant: -10)
+            exchangeLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
         
     }
@@ -89,9 +89,6 @@ class SearchViewController: UIViewController {
             UIView.transition(with: self.tableView, duration: 0.2, options: .transitionCrossDissolve, animations: {self.tableView.reloadData()}, completion: nil)
         }
     }
-//        StockAttributes(symbol: "AAPL", name: "Apple", exch: "", type: "", exchDisp: "", typeDisp: ""),
-//        StockAttributes(symbol: "GOOG", name: "Alphabet", exch: "", type: "", exchDisp: "", typeDisp: "")
-//    ]
     
     lazy var tableView: UITableView = {
         let tableView = UITableView(frame: CGRect.zero, style: UITableView.Style.grouped)
@@ -101,11 +98,8 @@ class SearchViewController: UIViewController {
         return tableView
     }()
     
-    
-    
     lazy var searchBar: UISearchBar = {
         let searchBar = UISearchBar(frame: .zero)
-        //searchBar.delegate = context.coordinator
         searchBar.placeholder = "Search"
         searchBar.searchBarStyle = .minimal
         searchBar.autocapitalizationType = .none
@@ -113,7 +107,6 @@ class SearchViewController: UIViewController {
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         return searchBar
     }()
-    
     
     lazy var cancelButton: UIButton = {
         var button = UIButton()
@@ -123,7 +116,6 @@ class SearchViewController: UIViewController {
         button.addTarget(self, action: #selector(cancel), for: UIControl.Event.touchUpInside)
         return button
     }()
-    
     
     @objc func cancel() {
         mainViewModel.chartViewModels.forEach{ viewModel in
@@ -151,10 +143,7 @@ class SearchViewController: UIViewController {
         self.tableView.dataSource = self
         searchBar.delegate = self
         setupUI()
-
-            //print(view.window)
-            
-        
+   
         self.tableView.reloadData()
         tableView.register(CustomCell.self, forCellReuseIdentifier: "SearchCell")
         setSubscription()
@@ -169,8 +158,6 @@ class SearchViewController: UIViewController {
         //}
 
     }
-    
-    
     
     func setupUI() {
         
@@ -202,13 +189,18 @@ class SearchViewController: UIViewController {
                     return WebService.makeNetworkQuery(for: url, decodableType: Search.self).receive(on: DispatchQueue.main)
             }
             .sink(receiveCompletion: {_ in }) { search in
-                //debugPrint(search)
-                self.searchedResults = search.resultSet.result
+                
+                guard let searchedResults = search.data?.items else {
+                    self.searchedResults = []
+                    return
+                }
+                self.searchedResults = searchedResults
+                
         }
-        
+        /*
         forSomeReasonSubscription =
             subject
-                .debounce(for: .seconds(0.7), scheduler: DispatchQueue.main)
+                .debounce(for: .seconds(0.7), scheduler: DispatchQueue.main)x
                 .flatMap { string -> Publishers.ReceiveOn<AnyPublisher<Fundamental, WebServiceError>, DispatchQueue> in
                     let url = WebService.makeFundamentaltURL(symbol: string, date: Int(Date().timeIntervalSince1970))
                     return WebService.makeNetworkQuery(for: url, decodableType: Fundamental.self).receive(on: DispatchQueue.main)
@@ -216,8 +208,7 @@ class SearchViewController: UIViewController {
             .sink(receiveCompletion: {_ in }) { fundamental in
                 guard let resultQuote = fundamental.optionChain?.result?.first?.quote else {return}
                 self.searchedResults.insert(StockAttributes(symbol: resultQuote.symbol ?? "", name: resultQuote.shortName ?? "", exch: resultQuote.exchange ?? "", type: resultQuote.quoteType ?? "", exchDisp: resultQuote.exchange ?? "", typeDisp: resultQuote.quoteType ?? ""), at: 0)
-        }
-        
+        }*/
     }
     
     
@@ -239,7 +230,6 @@ extension SearchViewController: UITableViewDelegate {
             UINavigationBar.setAnimationsEnabled(true)
         }
         
-        
     }
     
 }
@@ -256,8 +246,6 @@ extension SearchViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "SearchCell", for: indexPath) as! CustomCell
-        //let cell = CustomCell()
-        
         cell.symbolLabel.text = self.searchedResults[indexPath.row].symbol
         cell.nameLabel.text = self.searchedResults[indexPath.row].name
         cell.exchangeLabel.text = self.searchedResults[indexPath.row].exch
@@ -306,7 +294,7 @@ struct SearchViewUI: UIViewControllerRepresentable {
     }
     
     func updateUIViewController(_ contentViewController: SearchViewController, context: Context) {
-        //print("updateUIViewController")
+        //debugPrint("updateUIViewController")
     }
 
 }

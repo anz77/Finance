@@ -10,20 +10,68 @@ import Foundation
 import Combine
 import UIKit
 
+
+enum Mode {
+    case active
+    case passive
+    case waiting
+    case hidden
+    case remove
+}
+
 //MARK: - CHARTVIEWMODEL
 class ChartViewModel: ChartViewProtocol {
     
 //MARK: - VARIABLES
     
+    var mode: Mode = .passive {
+        didSet {
+            switch mode {
+            case .active:
+                if oldValue == .passive {
+                    setSubscriptions()
+                    start()
+                } else {
+                    start()
+                }
+                debugPrint("set ACTIVE")
+            case .passive:
+                if oldValue == .active || oldValue == .hidden || oldValue == .waiting {
+                    cancelSubscriptions()
+                }
+                debugPrint("set PASSIVE")
+            case .waiting:
+                if oldValue == .active {
+                    stopTimers()
+                } else {
+                    setSubscriptions()
+                }
+                debugPrint("set WAITING")
+            case .hidden:
+                if oldValue == .active {
+                    stopTimers()
+                } else if oldValue == .passive {
+                    setSubscriptions()
+                }
+                debugPrint("set HIDDEN")
+            case .remove:
+                stopTimers()
+                cancelSubscriptions()
+                debugPrint("set REMOVE")
+            }
+        }
+    }
+    
     var internetChecker: Bool {
         didSet {
             if internetChecker {
-                setSubscriptions()
-                //debugPrint("internet IN")
-                start()
+                if mode == .passive || mode == .waiting {
+                    mode = .active
+                }
             } else {
-                //debugPrint("internet OUT")
-                cancelSubscriptions()
+                if mode == .active {
+                    mode = .passive
+                }
             }
         }
     }
@@ -73,19 +121,10 @@ class ChartViewModel: ChartViewProtocol {
     
     
 //MARK: - INIT
-    init(withSymbol symbol: String?, isDetailViewModel: Bool, internetChecker: Bool = true) {
-        
+    init(withSymbol symbol: String?, internetChecker: Bool = true) {
         self.symbol = symbol
         self.internetChecker = internetChecker
-        
-        setSubscriptions()
-        
-        if self.internetChecker {
-            start()
-        } else {
-            fetchFundamentalFromDisc()
-        }
-        
+        fetchFundamentalFromDisc()
     }
     
     // only for preview
@@ -101,9 +140,7 @@ class ChartViewModel: ChartViewProtocol {
     }
     
     func setAndConfigureSession() {
-        
         let configuration = URLSessionConfiguration.default
-        //configuration.waitsForConnectivity = true
         session = URLSession(configuration: configuration, delegate: nil, delegateQueue: nil)
     }
     
@@ -117,11 +154,7 @@ class ChartViewModel: ChartViewProtocol {
         fundamentalSubscription =
         fundamentalTimerSubject
         .flatMap { _ in
-            
             WebService.makeNetworkQuery(for: self.fundamentalURL, decodableType: Fundamental.self, session: session).receive(on: DispatchQueue.main)
-            
-            //WebService.makeNetworkQuery(for: self.fundamentalURL, decodableType: Fundamental.self).receive(on: DispatchQueue.main)
-            
         }
         .sink(receiveCompletion: { completion in
 //            switch completion {
@@ -143,10 +176,7 @@ class ChartViewModel: ChartViewProtocol {
         historicalChartSubscription =
         historicalChartTimerSubject
             .flatMap { _ in
-                
                 WebService.makeNetworkQuery(for: self.historicalChartURL, decodableType: HistoricalChart.self, session: session).receive(on: DispatchQueue.main)
-                //WebService.makeNetworkQuery(for: self.historicalChartURL, decodableType: HistoricalChart.self).receive(on: DispatchQueue.main)
-                
         }
             .sink(receiveCompletion: {completion in
 //                switch completion {
@@ -193,7 +223,6 @@ class ChartViewModel: ChartViewProtocol {
         stopTimers()
         fundamentalSubscription?.cancel()
         historicalChartSubscription?.cancel()
-        
     }
 
 // MARK: - STORING (VANILLA API)
@@ -202,7 +231,6 @@ class ChartViewModel: ChartViewProtocol {
         //debugPrint(url)
         do {
             try StorageService.storeData(self.fundamental, url: url)
-            
         } catch {
             debugPrint("SOME STORING ERROR OCCURED!")
         }
@@ -212,7 +240,6 @@ class ChartViewModel: ChartViewProtocol {
         guard let url = self.historicalChartStorageURL else {return}
         do {
             try StorageService.storeData(self.chart, url: url)
-            
         } catch {
             debugPrint("SOME STORING ERROR OCCURED!")
         }
@@ -276,27 +303,3 @@ class ChartViewModel: ChartViewProtocol {
    
     
 }
-
-
-//    var validPeriods: [Period] {
-//        guard let validRanges = viewModel.chart?.chart?.result?.first??.meta?.validRanges else {return self.periods}
-//        for period in validRanges {
-//            //if period ==
-//        }
-//        return []
-//    }
-     
-/*
-func fundamentalSubscriptionFunc() {
-    fundamentalTimerSubject
-        .flatMap { _ in
-            API.WebService.fetch(for: self.fundamentaltURL, decodableType: Fundamental.self)
-    }
-    .sink(receiveCompletion: { (completion) in
-        print(completion)
-    }) { (value) in
-        self.fundamental = value
-    }
-.store(in: &subscriptions)
-}
-*/

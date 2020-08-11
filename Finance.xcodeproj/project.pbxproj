@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B22B247B24E1A02A00F1490D /* AAPL_price.json in Resources */ = {isa = PBXBuildFile; fileRef = B22B247A24E1A02A00F1490D /* AAPL_price.json */; };
+		B22B247D24E1A1A000F1490D /* Price.swift in Sources */ = {isa = PBXBuildFile; fileRef = B22B247C24E1A1A000F1490D /* Price.swift */; };
+		B22B248324E1A5E500F1490D /* ALUM_chart.json in Resources */ = {isa = PBXBuildFile; fileRef = B22B248224E1A5E500F1490D /* ALUM_chart.json */; };
+		B22B248524E1A67400F1490D /* ALUM_fundamental.json in Resources */ = {isa = PBXBuildFile; fileRef = B22B248424E1A67400F1490D /* ALUM_fundamental.json */; };
+		B22B248724E1A79400F1490D /* Graph.swift in Sources */ = {isa = PBXBuildFile; fileRef = B22B248624E1A79400F1490D /* Graph.swift */; };
 		B254D10324B72FE900487DD5 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B254D10224B72FE900487DD5 /* SettingsView.swift */; };
 		B25E09CC24AC742300FB6EEC /* SearchUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B25E09CB24AC742300FB6EEC /* SearchUI.swift */; };
 		B26E1FF024D717FF0021A336 /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26E1FEF24D717FF0021A336 /* ActivityIndicator.swift */; };
@@ -65,6 +70,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		B22B247A24E1A02A00F1490D /* AAPL_price.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = AAPL_price.json; sourceTree = "<group>"; };
+		B22B247C24E1A1A000F1490D /* Price.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Price.swift; sourceTree = "<group>"; };
+		B22B248224E1A5E500F1490D /* ALUM_chart.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ALUM_chart.json; sourceTree = "<group>"; };
+		B22B248424E1A67400F1490D /* ALUM_fundamental.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ALUM_fundamental.json; sourceTree = "<group>"; };
+		B22B248624E1A79400F1490D /* Graph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Graph.swift; sourceTree = "<group>"; };
 		B254D10224B72FE900487DD5 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		B25E09CB24AC742300FB6EEC /* SearchUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchUI.swift; sourceTree = "<group>"; };
 		B26E1FEF24D717FF0021A336 /* ActivityIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
@@ -191,6 +201,9 @@
 			isa = PBXGroup;
 			children = (
 				B2F9849724A1E79400A4A537 /* AAPL_chart.json */,
+				B22B248224E1A5E500F1490D /* ALUM_chart.json */,
+				B22B247A24E1A02A00F1490D /* AAPL_price.json */,
+				B22B248424E1A67400F1490D /* ALUM_fundamental.json */,
 				B2F9849A24A1E79400A4A537 /* AAPL_fundamental.json */,
 				B2F9849024A1E79400A4A537 /* AAPL_pre_post.json */,
 				B2F9849124A1E79400A4A537 /* AAPL.xml */,
@@ -209,16 +222,17 @@
 		B2F984BB24A1E7D000A4A537 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				B2F984AE24A1E7C700A4A537 /* SymbolsList.swift */,
 				B2F984AC24A1E7C700A4A537 /* Fundamental.swift */,
 				B2F984AB24A1E7C700A4A537 /* HistoricalChart.swift */,
 				B2F984A924A1E7C700A4A537 /* Modules.swift */,
 				B2F984A724A1E7C700A4A537 /* Quote.swift */,
 				B2F984B024A1E7C700A4A537 /* RSSItem.swift */,
 				B2F984AD24A1E7C700A4A537 /* Search.swift */,
-				B2F984AE24A1E7C700A4A537 /* SymbolsList.swift */,
 				B2F984A824A1E7C700A4A537 /* XMLPublisher.swift */,
 				B2F984AF24A1E7C700A4A537 /* XmlRssParcer.swift */,
 				B2F984AA24A1E7C700A4A537 /* YFError.swift */,
+				B22B247C24E1A1A000F1490D /* Price.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -253,6 +267,7 @@
 				B25E09CB24AC742300FB6EEC /* SearchUI.swift */,
 				B254D10224B72FE900487DD5 /* SettingsView.swift */,
 				B2D575C324D9C96500B9CA7E /* ListView.swift */,
+				B22B248624E1A79400F1490D /* Graph.swift */,
 				B2F984CC24A1E85300A4A537 /* ChartView.swift */,
 				B2F984D524A1E85400A4A537 /* DetailChartView.swift */,
 				B2F984D424A1E85400A4A537 /* EditView.swift */,
@@ -335,14 +350,17 @@
 				B2F984A524A1E79500A4A537 /* AAPL_fundamental.json in Resources */,
 				B2F984A224A1E79500A4A537 /* AAPL_chart.json in Resources */,
 				B2F984A024A1E79500A4A537 /* SPY_fundamental.json in Resources */,
+				B22B247B24E1A02A00F1490D /* AAPL_price.json in Resources */,
 				B2F9848024A1E6A700A4A537 /* LaunchScreen.storyboard in Resources */,
 				B2F9847D24A1E6A700A4A537 /* Preview Assets.xcassets in Resources */,
 				B2F9849C24A1E79500A4A537 /* AAPL.xml in Resources */,
 				B2F984A124A1E79500A4A537 /* SPY_modules.json in Resources */,
 				B2F9849F24A1E79500A4A537 /* Modules.json in Resources */,
 				B2F9847A24A1E6A700A4A537 /* Assets.xcassets in Resources */,
+				B22B248524E1A67400F1490D /* ALUM_fundamental.json in Resources */,
 				B2F9849B24A1E79500A4A537 /* AAPL_pre_post.json in Resources */,
 				B2F984A324A1E79500A4A537 /* UAHUSD_json.json in Resources */,
+				B22B248324E1A5E500F1490D /* ALUM_chart.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -361,6 +379,7 @@
 				B2F984E024A1E85400A4A537 /* KeyStatisticsView.swift in Sources */,
 				B2F984DF24A1E85400A4A537 /* CustomInformationView.swift in Sources */,
 				B2F984B924A1E7C700A4A537 /* XmlRssParcer.swift in Sources */,
+				B22B247D24E1A1A000F1490D /* Price.swift in Sources */,
 				B2F984D924A1E85400A4A537 /* SearchView.swift in Sources */,
 				B2F984E724A1E85400A4A537 /* GraphViewUIKit.swift in Sources */,
 				B2F984B424A1E7C700A4A537 /* YFError.swift in Sources */,
@@ -382,6 +401,7 @@
 				B2F984DA24A1E85400A4A537 /* TimeMarkersView.swift in Sources */,
 				B2F984C124A1E80500A4A537 /* WebService.swift in Sources */,
 				B2F984DE24A1E85400A4A537 /* WebView.swift in Sources */,
+				B22B248724E1A79400F1490D /* Graph.swift in Sources */,
 				B2A08F2124DE980600F861E4 /* DetailChartViewModel.swift in Sources */,
 				B2F984C324A1E80500A4A537 /* API.swift in Sources */,
 				B2F984B224A1E7C700A4A537 /* XMLPublisher.swift in Sources */,

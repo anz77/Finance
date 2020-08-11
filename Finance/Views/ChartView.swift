@@ -57,7 +57,6 @@ struct ChartView: View {
                             .background(Color(self.changedColor(for: self.quote?.regularMarketChangePercent))).cornerRadius(3)
                         }
                         
-                        
                         if self.quote?.preMarketChangePercent != nil {
                             HStack(alignment: .center, spacing: 0) {
                                 Text("Pre: ").font(.caption)

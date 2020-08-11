@@ -62,13 +62,9 @@ struct ChartExtremums {
 
 protocol ChartViewProtocol: ObservableObject, Identifiable {
     
-    
-    
     var session: URLSession? { get set }
     
     func setAndConfigureSession()
-    
-    
     
     var chart: HistoricalChart? { get set }
     var fundamental: Fundamental? { get set }
@@ -76,10 +72,6 @@ protocol ChartViewProtocol: ObservableObject, Identifiable {
     var timeInterval: TimeInterval? { get set }
     var chartExtremums: ChartExtremums? { get set }
     var timeMarkerCount: Int? { get set }
-    
-    //var fundamentalTimerInterval: Double = 5
-    //var historicalChartTimerInterval: Double = 60
-    //var currentRssUrl: URL?
     
     func setSubscriptions()
     func cancelSubscriptions()
@@ -148,7 +140,7 @@ extension ChartViewProtocol {
             var count = 0
             for tradingPeriod in tradingPeriods {
                 let tp = tradingPeriod.first
-                let dayTimeMarkerCount = ((tp??.end ?? 0) - (tp??.start ?? 0)) / dataGranularity ///////////////////////////////// РАЗОБРАТЬСЯ
+                let dayTimeMarkerCount = ((tp??.end ?? 0) - (tp??.start ?? 0)) / dataGranularity
                 count += dayTimeMarkerCount
             }
             self.timeMarkerCount = count
