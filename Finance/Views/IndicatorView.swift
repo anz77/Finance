@@ -95,7 +95,7 @@ struct IndicatorView : View {
 struct IndicatorView_Previews : PreviewProvider {
     static var previews: some View {
         ZStack {
-            IndicatorView(indicatorViewIsVisible: .constant(false), timeStampIndex: .constant(0), viewModel: DetailChartViewModel(withJSON: "BTCUSD"))
+            IndicatorView(indicatorViewIsVisible: .constant(false), timeStampIndex: .constant(0), viewModel: DetailChartViewModel(withJSON: "AAPL"))
         }
             .colorScheme(.dark)
     }

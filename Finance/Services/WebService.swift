@@ -124,13 +124,6 @@ enum WebService {
     
     static func makeNetworkQuery<T: Codable>(for url: URL, decodableType: T.Type, session: URLSession) -> AnyPublisher<T, WebServiceError> {
         
-        //let request = URLRequest(url: url, cachePolicy: URLRequest.CachePolicy.reloadIgnoringCacheData, timeoutInterval: 15)
-        //let configuration = URLSessionConfiguration.default
-        //configuration.waitsForConnectivity = true
-        //let session = URLSession(configuration: configuration)
-        
-        //guard let session = session else { return }
-        
         return session.dataTaskPublisher(for: url)
             .tryMap({ data, response in
                 guard let httpResponse = response as? HTTPURLResponse else { throw APIError.unknown }
@@ -143,9 +136,7 @@ enum WebService {
                 
                 default: break
                 }
-                if decodableType == HistoricalChart.self {
-                    //print(String(data: data, encoding: String.Encoding.utf8)!)
-                }
+                
                 //print(String(data: data, encoding: String.Encoding.utf8)!)
                 //debugPrint(url)
                 return data

@@ -10,9 +10,6 @@ import Foundation
 import UIKit
 import SystemConfiguration
 
-
-
-
 public class InternetConnectionManager {
     
     private init() {}
@@ -36,7 +33,6 @@ public class InternetConnectionManager {
         let needsConnection = (flags.rawValue & UInt32(kSCNetworkFlagsConnectionRequired)) != 0
         return (isReachable && !needsConnection)
     }
-    
     
 }
 

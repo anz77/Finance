@@ -127,6 +127,6 @@ struct ChartView: View {
 
 struct ChartView_Previews: PreviewProvider {
     static var previews: some View {
-        ChartView(viewModel: ChartViewModel(withJSON: "GOOG")).frame(height: 60)//.environment(\.colorScheme, .dark).background(Color.black)
+        ChartView(viewModel: ChartViewModel(withJSON: "AAPL")).frame(height: 60)//.environment(\.colorScheme, .dark).background(Color.black)
     }
 }

@@ -118,6 +118,20 @@ class Graph: UIView  {
                     context.setLineWidth(1)
 
                     context.strokePath()
+                    
+                    
+                    
+                    if let regularMarketPrice = self.viewModel.fundamental?.optionChain?.result?.first?.quote?.regularMarketPrice {
+                        
+                        context.setFillColor((regularMarketPrice - chartPreviousClose).sign == .plus ? UIColor.systemGreen.cgColor : UIColor.systemRed.cgColor)
+                        
+                        context.move(to: CGPoint(x: CGFloat(timeStamp.count) * stepX, y: coordinateY(price: regularMarketPrice, size: size)))
+                        
+                        context.addEllipse(in: CGRect(x: CGFloat(timeStamp.count) * stepX - 1.5, y: coordinateY(price: regularMarketPrice, size: size) - 1.5, width: 3, height: 3))
+                        context.fillPath()
+                    }
+                    
+                    
                 }
             }
         }

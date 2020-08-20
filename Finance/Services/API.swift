@@ -23,16 +23,6 @@ enum API {
 
 }
 
-
-
-//func storeDefaultsFromSymbolLists(_ list: [SymbolsList]) {
-//    let defaults = UserDefaults.standard
-//    let listEncoder = JSONEncoder()
-//    if let encodedLists = try? listEncoder.encode(list) {
-//        defaults.set(encodedLists, forKey: "DefaultLists")
-//    }
-//}
-
 func storeDefaultsFromSymbolLists(_ list: [SymbolsList]) {
     let defaults = UserDefaults.standard
     let listEncoder = JSONEncoder()
@@ -45,9 +35,6 @@ func storeDefaultsFromSymbolLists(_ list: [SymbolsList]) {
     catch {
         //debugPrint("error writing to defaults")
     }
-//    if let encodedLists = try? listEncoder.encode(list) {
-//        defaults.set(encodedLists, forKey: "DefaultLists")
-//    }
 }
 
 
