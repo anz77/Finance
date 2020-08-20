@@ -10,7 +10,6 @@ import Foundation
 import SwiftUI
 
 
-
 class Graph: UIView  {
     
     @ObservedObject var viewModel: DetailChartViewModel
@@ -37,10 +36,7 @@ class Graph: UIView  {
                 if timeStamp.count > 0 {
                     let size = rect.size
                     
-                    
                     let stepX = size.width / CGFloat(timeMarkerCount)
-                    
-                    //let stepX = size.width / (timeMarkerCount - CGFloat(timeStamp.count) + CGFloat(flatArray.count))
                     
                     let clippingPath = UIBezierPath()
                     
@@ -54,9 +50,9 @@ class Graph: UIView  {
                     
                     context.addLine(to: CGPoint(
                         x: 0,
-                        y: coordinateY(price: (quote.open?[0] ?? chartPreviousClose), size: size)))
+                        y: coordinateY(price: (quote?.open?[0] ?? chartPreviousClose), size: size)))
                     
-                    context.setStrokeColor(((quote.close?[0] ?? chartPreviousClose) - chartPreviousClose).sign == .plus ? UIColor.systemGreen.cgColor : UIColor.systemRed.cgColor)
+                    context.setStrokeColor(((quote?.close?[0] ?? chartPreviousClose) - chartPreviousClose).sign == .plus ? UIColor.systemGreen.cgColor : UIColor.systemRed.cgColor)
 
                     for index in 1..<timeStamp.count {
                         
@@ -102,7 +98,7 @@ class Graph: UIView  {
                     
                     context.addLine(to: CGPoint(
                         x: 0,
-                        y: coordinateY(price: quote.close?[0] ?? chartPreviousClose, size: size)))
+                        y: coordinateY(price: quote?.close?[0] ?? chartPreviousClose, size: size)))
                     
                     context.setStrokeColor(UIColor.systemBackground.withAlphaComponent(0.5).cgColor)
                     context.strokePath()
@@ -130,7 +126,7 @@ class Graph: UIView  {
             
             guard let quote = viewModel.chart?.chart?.result?.first??.indicators?.quote?.first,
                 let meta = viewModel.chart?.chart?.result?.first??.meta, let chartPreviousClose = meta.chartPreviousClose else { return 0 }
-            let previousPrice = (index == 1 ? (quote.close?[0] ?? chartPreviousClose) : (self.viewModel.priceForIndex(index - 1)))
+            let previousPrice = (index == 1 ? (quote?.close?[0] ?? chartPreviousClose) : (self.viewModel.priceForIndex(index - 1)))
             let deltaY = CGFloat(self.viewModel.priceForIndex(index) - previousPrice)
             let differential = deltaX / deltaY
             let coordinateX = deltaX * CGFloat(index - 1) + CGFloat(self.viewModel.priceForIndex(index) - chartPreviousClose) * differential
@@ -193,6 +189,6 @@ struct GraphViewUI: UIViewRepresentable  {
 
 struct GraphViewUI_Previews: PreviewProvider {
     static var previews: some View {
-        GraphViewUI(viewModel: DetailChartViewModel(withJSON: "ALUM"))
+        GraphViewUI(viewModel: DetailChartViewModel(withJSON: "AAPL"))
     }
 }

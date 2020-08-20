@@ -67,7 +67,7 @@ class XmlRssParser: NSObject, XMLParserDelegate {
 //    }
     
     func parser(_ parser: XMLParser, parseErrorOccurred parseError: Error) {
-        print(parseError.localizedDescription)
+        //debugPrint(parseError.localizedDescription)
     }
     
 }

@@ -144,8 +144,12 @@ class DetailChartViewModel: ChartViewProtocol {
         if self.internetChecker {
             start()
         } else {
-            
         }
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(sceneWillTDeactivate(notification:)), name: UIScene.willDeactivateNotification, object: nil)
+        
+         NotificationCenter.default.addObserver(self, selector: #selector(sceneDidActivate(notification:)), name: UIScene.didActivateNotification, object: nil)
+        
     }
     
     // only for preview
@@ -160,7 +164,17 @@ class DetailChartViewModel: ChartViewProtocol {
     deinit {
         //debugPrint("               deinit DetailChartViewModel")
     }
+        
+    @objc func sceneWillTDeactivate(notification: Notification) {
+        stopTimers()
+    }
     
+    @objc func sceneDidActivate(notification: Notification) {
+        //debugPrint("sceneDidActivate")
+            if self.internetChecker {
+                start()
+            }
+    }
     
 //MARK: - FETCHING (COMBINE API METHODS)
     
@@ -172,17 +186,21 @@ class DetailChartViewModel: ChartViewProtocol {
             WebService.makeNetworkQuery(for: self.fundamentalURL, decodableType: Fundamental.self, session: session).receive(on: DispatchQueue.main)
         }
         .sink(receiveCompletion: { completion in
-//            switch completion {
-//            case .failure(let error):
-//                debugPrint(error)
-//            case .finished:
-//                debugPrint("finished")
-//            }
+            switch completion {
+            case .failure/*(let error)*/:
+                //debugPrint(error)
+                self.setFundamenatalSubscription()
+            case .finished:
+                //debugPrint("finished")
+                break
+            }
         }) { [weak self] fundamental in
-            //debugPrint((self?.isDetailViewModel ?? false ? "               DetailVM " : "ChartVM ") + "get value")
             self?.fundamental = fundamental
         }
     }
+    
+    
+    
     
     func setHistoricalChartSubscription() {
         
@@ -194,28 +212,26 @@ class DetailChartViewModel: ChartViewProtocol {
                 WebService.makeNetworkQuery(for: self.historicalChartURL, decodableType: HistoricalChart.self, session: session).receive(on: DispatchQueue.main)
         }
             .sink(receiveCompletion: {completion in
-//                switch completion {
-//                case .failure(let error):
-//                    debugPrint(error)
-//                case .finished:
-//                    debugPrint("finished")
-//                }
+                switch completion {
+                case .failure/*(let error)*/:
+                    //debugPrint(error)
+                    self.setHistoricalChartSubscription()
+                case .finished:
+                    //debugPrint("finished")
+                    break
+                }
             }) { [weak self] historicalChart in self?.chart = historicalChart }
     }
     
     func setRssSubscription() {
-        //guard let session = self.session else {return}
+        
+        guard let session = self.session else {return}
+        
         rssSubscription = rssSubject
             .flatMap { _ in
-                WebService.makeNetworkQueryForXML(for: self.rssURL).receive(on: DispatchQueue.main)
+                WebService.makeNetworkQueryForXML(for: self.rssURL, session: session).receive(on: DispatchQueue.main)
         }
             .sink(receiveCompletion: { completion in
-//                switch completion {
-//                case .failure(let error):
-//                    debugPrint(error)
-//                case .finished:
-//                   debugPrint("finished")
-//                }
             }) { [weak self] rss in self?.rss = rss }
     }
     
@@ -240,9 +256,7 @@ class DetailChartViewModel: ChartViewProtocol {
     
     
     func setSubscriptions() {
-        //debugPrint("SET SUBSCRIPTIONS")
         setAndConfigureSession()
-        
         setFundamenatalSubscription()
         setHistoricalChartSubscription()
         setModulesSubscription()
@@ -270,11 +284,8 @@ class DetailChartViewModel: ChartViewProtocol {
         timersSubscriptions.forEach { $0.cancel() }
     }
     
-   
     func cancelSubscriptions() {
-        //debugPrint("CANCEL SUBSCRIPTIONS")
         session?.invalidateAndCancel()
-        //session?.finishTasksAndInvalidate()
         stopTimers()
         fundamentalSubscription?.cancel()
         historicalChartSubscription?.cancel()
@@ -352,12 +363,10 @@ class DetailChartViewModel: ChartViewProtocol {
         rowArray.append(currentMinIndex)
         let currentDate = Date(timeIntervalSince1970: Double(timeStamp[currentMinIndex]))
         var currentPeriod = calendar.dateComponents([timeComponent], from: currentDate).value(for: timeComponent)
-        //debugPrint("currentMinIndex = \(String(describing: currentMinIndex))")
         
         for index in Array(0...timeStamp.count - 1) {
             let date = Date(timeIntervalSince1970: Double(timeStamp[index]))
             let period = calendar.dateComponents([timeComponent], from: date).value(for: timeComponent)
-            //debugPrint("month = \(month!), currentMonth = \(currentMonth!)")
             if period != currentPeriod {
                 rowArray.append(index)
                 currentPeriod = period
@@ -405,17 +414,3 @@ class DetailChartViewModel: ChartViewProtocol {
 //        return []
 //    }
      
-/*
-func fundamentalSubscriptionFunc() {
-    fundamentalTimerSubject
-        .flatMap { _ in
-            API.WebService.fetch(for: self.fundamentaltURL, decodableType: Fundamental.self)
-    }
-    .sink(receiveCompletion: { (completion) in
-        print(completion)
-    }) { (value) in
-        self.fundamental = value
-    }
-.store(in: &subscriptions)
-}
-*/

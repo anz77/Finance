@@ -16,7 +16,7 @@ enum API {
             let decodedObject = try JSONDecoder().decode(t, from: jsonData)
             return decodedObject
         } catch {
-            debugPrint("DECODING ERROR!!!\n")
+            //debugPrint("DECODING ERROR!!!\n")
             return nil
         }
     }
@@ -43,7 +43,7 @@ func storeDefaultsFromSymbolLists(_ list: [SymbolsList]) {
         
     }
     catch {
-        debugPrint("error writing to defaults")
+        //debugPrint("error writing to defaults")
     }
 //    if let encodedLists = try? listEncoder.encode(list) {
 //        defaults.set(encodedLists, forKey: "DefaultLists")

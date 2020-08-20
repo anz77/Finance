@@ -23,7 +23,7 @@ struct ChartView: View {
     var body: some View {
         GeometryReader { geometry in
             VStack {
-                //Spacer()
+
                 HStack(alignment: .center, spacing: 0) {
                     
                     VStack(alignment: .leading, spacing: 0) {
@@ -40,13 +40,13 @@ struct ChartView: View {
                     GraphViewUIKit(viewModel: self.viewModel).frame(width: geometry.size.width * 0.40, alignment: Alignment(horizontal: .center, vertical: .center))
                     
                     VStack(alignment: .trailing, spacing: 0) {
-                        //Spacer()
+
                         Text(self.formattedTextFor(value: self.quote?.regularMarketPrice, signed: false)).font(.headline).fontWeight(.bold)
                             .padding(.init(top: 1, leading: 10, bottom: 1, trailing: 2))
                             .scaledToFill()
                             .layoutPriority(1)
                             .background(Color(self.changedColorForRegularMarketPrice)).cornerRadius(3)
-                        
+
                         Spacer().frame(height: 1)
                         
                         if self.quote?.regularMarketChangePercent != nil {
@@ -56,7 +56,7 @@ struct ChartView: View {
                             .padding(.init(top: 1, leading: 7, bottom: 1, trailing: 5))
                             .background(Color(self.changedColor(for: self.quote?.regularMarketChangePercent))).cornerRadius(3)
                         }
-                        
+
                         if self.quote?.preMarketChangePercent != nil {
                             HStack(alignment: .center, spacing: 0) {
                                 Text("Pre: ").font(.caption)
@@ -73,10 +73,10 @@ struct ChartView: View {
                     }.frame(width: geometry.size.width * 0.25, alignment: Alignment(horizontal: .trailing, vertical: .center))
 
                 }
-                
+
                 Spacer()
             }
-            
+
         }.onReceive(self.viewModel.$fundamental, perform: { fundamental in
             if let regularPrice = self.quote?.regularMarketPrice, let regularPriceNewValue = self.viewModel.regularPriceNewValue {
                 //debugPrint("         regularPrice = \(regularPrice), regularPriceNewValue = \(regularPriceNewValue)")
@@ -127,6 +127,6 @@ struct ChartView: View {
 
 struct ChartView_Previews: PreviewProvider {
     static var previews: some View {
-        ChartView(viewModel: ChartViewModel(withJSON: "BTCUSD")).frame(height: 60)//.environment(\.colorScheme, .dark).background(Color.black)
+        ChartView(viewModel: ChartViewModel(withJSON: "GOOG")).frame(height: 60)//.environment(\.colorScheme, .dark).background(Color.black)
     }
 }

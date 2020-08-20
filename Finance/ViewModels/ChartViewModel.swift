@@ -34,30 +34,30 @@ class ChartViewModel: ChartViewProtocol {
                 } else {
                     start()
                 }
-                debugPrint("set ACTIVE")
+                //debugPrint("set ACTIVE")
             case .passive:
                 if oldValue == .active || oldValue == .hidden || oldValue == .waiting {
                     cancelSubscriptions()
                 }
-                debugPrint("set PASSIVE")
+                //debugPrint("set PASSIVE")
             case .waiting:
                 if oldValue == .active {
                     stopTimers()
                 } else {
                     setSubscriptions()
                 }
-                debugPrint("set WAITING")
+                //debugPrint("set WAITING")
             case .hidden:
                 if oldValue == .active {
                     stopTimers()
                 } else if oldValue == .passive {
                     setSubscriptions()
                 }
-                debugPrint("set HIDDEN")
+                //debugPrint("set HIDDEN")
             case .remove:
                 stopTimers()
                 cancelSubscriptions()
-                debugPrint("set REMOVE")
+                //debugPrint("set REMOVE")
             }
         }
     }
@@ -88,7 +88,7 @@ class ChartViewModel: ChartViewProtocol {
     @Published var fundamental: Fundamental?{
         willSet { if let newPrice = newValue?.optionChain?.result?.first?.quote?.regularMarketPrice { regularPriceNewValue = newPrice }}
         didSet {
-            
+            //debugPrint(fundamental)
         }
     }
    
@@ -157,14 +157,15 @@ class ChartViewModel: ChartViewProtocol {
             WebService.makeNetworkQuery(for: self.fundamentalURL, decodableType: Fundamental.self, session: session).receive(on: DispatchQueue.main)
         }
         .sink(receiveCompletion: { completion in
-//            switch completion {
-//            case .failure(let error):
-//                debugPrint(error)
-//            case .finished:
-//                debugPrint("finished")
-//            }
+            switch completion {
+            case .failure/*(let error)*/:
+                //debugPrint(error)
+                self.setFundamenatalSubscription()
+            case .finished:
+                //debugPrint("finished")
+                break
+            }
         }) { [weak self] fundamental in
-            //debugPrint((self?.isDetailViewModel ?? false ? "               DetailVM " : "ChartVM ") + "get value")
             self?.fundamental = fundamental
         }
     }
@@ -174,24 +175,26 @@ class ChartViewModel: ChartViewProtocol {
         guard let session = self.session else {return}
         
         historicalChartSubscription =
-        historicalChartTimerSubject
-            .flatMap { _ in
-                WebService.makeNetworkQuery(for: self.historicalChartURL, decodableType: HistoricalChart.self, session: session).receive(on: DispatchQueue.main)
-        }
+            historicalChartTimerSubject
+                .flatMap { _ in
+                    WebService.makeNetworkQuery(for: self.historicalChartURL, decodableType: HistoricalChart.self, session: session).receive(on: DispatchQueue.main)
+            }
             .sink(receiveCompletion: {completion in
-//                switch completion {
-//                case .failure(let error):
-//                    debugPrint(error)
-//                case .finished:
-//                    debugPrint("finished")
-//                }
-            }) { [weak self] historicalChart in self?.chart = historicalChart }
+                switch completion {
+                case .failure/*(let error)*/:
+                    //debugPrint(error)
+                    self.setHistoricalChartSubscription()
+                case .finished:
+                    //debugPrint("finished")
+                    break
+                }
+                
+            }) { [weak self] historicalChart in
+                self?.chart = historicalChart }
     }
     
     func setSubscriptions() {
-        //debugPrint("SET SUBSCRIPTIONS")
         setAndConfigureSession()
-
         setFundamenatalSubscription()
         setHistoricalChartSubscription()
     }
@@ -215,11 +218,8 @@ class ChartViewModel: ChartViewProtocol {
         timersSubscriptions.forEach { $0.cancel() }
     }
     
-   
     func cancelSubscriptions() {
-        //debugPrint("CANCEL SUBSCRIPTIONS")
         session?.invalidateAndCancel()
-        //session?.finishTasksAndInvalidate()
         stopTimers()
         fundamentalSubscription?.cancel()
         historicalChartSubscription?.cancel()
@@ -228,37 +228,31 @@ class ChartViewModel: ChartViewProtocol {
 // MARK: - STORING (VANILLA API)
     func storeFundamentalToDisc() {
         guard let url = self.fundamentalStorageURL else {return}
-        //debugPrint(url)
         do {
             try StorageService.storeData(self.fundamental, url: url)
-        } catch {
-            debugPrint("SOME STORING ERROR OCCURED!")
-        }
+        } catch { }
     }
     
     func storeHistoricalChartToDisc() {
         guard let url = self.historicalChartStorageURL else {return}
         do {
             try StorageService.storeData(self.chart, url: url)
-        } catch {
-            debugPrint("SOME STORING ERROR OCCURED!")
-        }
+        } catch { }
     }
     
     func fetchFundamentalFromDisc()  {
         guard let url = self.fundamentalStorageURL else {return}
         do {
             try StorageService.readData(from: url, decodableType: Fundamental.self) { fundamental in
-                //debugPrint("SUCCESS READING FROM DISC...")
                 self.fundamental = fundamental
             }
-        } catch let error {
-            switch error {
-            case let error as StorageError:
-                debugPrint(error.errorDescription!)
-            default:
-                debugPrint(error.localizedDescription)
-            }
+        } catch /*let error*/ {
+//            switch error {
+//            case let error as StorageError:
+//                debugPrint(error.errorDescription!)
+//            default:
+//                debugPrint(error.localizedDescription)
+//            }
         }
     }
     
@@ -268,13 +262,13 @@ class ChartViewModel: ChartViewProtocol {
             try StorageService.readData(from: url, decodableType: HistoricalChart.self) { historicalChart in
                 //debugPrint("SUCCESS READING FROM DISC...")
             }
-        } catch let error {
-            switch error {
-            case let error as StorageError:
-                debugPrint(error.errorDescription!)
-            default:
-                debugPrint(error.localizedDescription)
-            }
+        } catch /*let error*/ {
+//            switch error {
+//            case let error as StorageError:
+//                debugPrint(error.errorDescription!)
+//            default:
+//                debugPrint(error.localizedDescription)
+//            }
         }
     }
     

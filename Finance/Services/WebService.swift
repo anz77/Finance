@@ -146,7 +146,7 @@ enum WebService {
                 if decodableType == HistoricalChart.self {
                     //print(String(data: data, encoding: String.Encoding.utf8)!)
                 }
-                print(String(data: data, encoding: String.Encoding.utf8)!)
+                //print(String(data: data, encoding: String.Encoding.utf8)!)
                 //debugPrint(url)
                 return data
             })
@@ -212,6 +212,40 @@ enum WebService {
             //.catch { _ in Empty<T, WebServiceError>() }
             .eraseToAnyPublisher()
     }
+    
+    static func makeNetworkQueryForXML(for url: URL, session: URLSession) -> AnyPublisher<[RSSItem], WebServiceError> {
+        session.dataTaskPublisher(for: url)
+            .tryMap({ data, response in
+                guard let httpResponse = response as? HTTPURLResponse else { throw APIError.unknown }
+                switch httpResponse.statusCode {
+                case 401: throw APIError.apiError(reason: "Unauthorized")
+                case 403: throw APIError.apiError(reason: "Resource forbidden")
+                case 404: throw APIError.apiError(reason: "Resource not found")
+                case 405..<500: throw APIError.apiError(reason: "Client error")
+                case 501..<600: throw APIError.apiError(reason: "Server error")
+                default: break
+                }
+                let parser = XmlRssParser()
+                let rssItems = parser.parsedItemsFromData(data)
+                return rssItems
+            })
+            .mapError({ error in
+                //debugPrint(error.localizedDescription)
+                switch error {
+                case let error as DecodingError:
+                    return .parserError(from: error)
+                case let error as URLError:
+                    return .networkError(from: error)
+                case let error as APIError:
+                    return .apiError(from: error)
+                default:
+                    return .unknown
+                }
+            })
+            .eraseToAnyPublisher()
+    }
+    
+    
     
     static func makeNetworkQueryForXML(for url: URL) -> AnyPublisher<[RSSItem], WebServiceError> {
         URLSession.shared.dataTaskPublisher(for: url)
@@ -329,11 +363,11 @@ enum WebService {
         let task = URLSession.shared.dataTask(with: url) { data, response, error in
             //debugPrint(data)
             guard error == nil else {
-                print("requestError: \(error!)")
+                //debugPrint("requestError: \(error!)")
                 return
             }
             guard let data = data else {
-                print("Data is empty")
+                //debugPrint("Data is empty")
                 return
             }
             //debugPrint(String(data: data, encoding: String.Encoding.utf8)!)
@@ -345,11 +379,11 @@ enum WebService {
     static func makeNetworkQueryAndDecode<T: Codable>(url: URL, decodableType: T.Type, completion: @escaping (_ someObject: T)->()) throws {
         let task = URLSession.shared.dataTask(with: url) { data, response, error in
             guard error == nil else {
-                print("requestError: \(error!)")
+                //debugPrint("requestError: \(error!)")
                 return
             }
             guard let data = data else {
-                print("Data is empty")
+                //debugPrint("Data is empty")
                 return
             }
             //debugPrint(String(data: data, encoding: String.Encoding.utf8)!)
@@ -357,7 +391,7 @@ enum WebService {
                 let decodedDate = try JSONDecoder().decode(decodableType, from: data)
                 completion(decodedDate)
             } catch {
-                debugPrint("decoding error")
+                //debugPrint("decoding error")
             }
         }
         task.resume()

@@ -33,20 +33,32 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             window.rootViewController = UIHostingController(rootView: mainView)
             
             self.window = window
+            
             window.makeKeyAndVisible()
             
         }
+        
     }
     
-    func sceneDidDisconnect(_ scene: UIScene) {}
+    func sceneDidDisconnect(_ scene: UIScene) {
+        //debugPrint("sceneDidDisconnect")
+    }
     
-    func sceneDidBecomeActive(_ scene: UIScene) {}
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        //debugPrint("sceneDidBecomeActive")
+    }
     
-    func sceneWillResignActive(_ scene: UIScene) {}
+    func sceneWillResignActive(_ scene: UIScene) {
+        //debugPrint("sceneWillResignActive")
+    }
     
-    func sceneWillEnterForeground(_ scene: UIScene) {}
+    func sceneWillEnterForeground(_ scene: UIScene) {
+        //debugPrint("sceneWillEnterForeground")
+    }
     
-    func sceneDidEnterBackground(_ scene: UIScene) {}
+    func sceneDidEnterBackground(_ scene: UIScene) {
+        //debugPrint("sceneDidEnterBackground")
+    }
     
     
 }

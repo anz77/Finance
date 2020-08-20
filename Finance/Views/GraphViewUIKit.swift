@@ -26,7 +26,6 @@ class GraphView<ViewModel>: UIView where ViewModel: ChartViewProtocol {
     
     override func draw(_ rect: CGRect) {
         
-            
             if let timeStamp = viewModel.chart?.chart?.result?.first??.timestamp,
                 let meta = viewModel.chart?.chart?.result?.first??.meta,
                 let quote = viewModel.chart?.chart?.result?.first??.indicators?.quote?.first,
@@ -36,9 +35,7 @@ class GraphView<ViewModel>: UIView where ViewModel: ChartViewProtocol {
             {
                 if timeStamp.count > 0 {
 
-
                     let size = rect.size
-
 
                     let stepX = size.width / CGFloat(timeMarkerCount)
 
@@ -56,9 +53,9 @@ class GraphView<ViewModel>: UIView where ViewModel: ChartViewProtocol {
 
                     context.addLine(to: CGPoint(
                         x: 0,
-                        y: coordinateY(price: (quote.open?[0] ?? chartPreviousClose), size: size)))
+                        y: coordinateY(price: (quote?.open?[0] ?? chartPreviousClose), size: size)))
 
-                    context.setStrokeColor(((quote.close?[0] ?? chartPreviousClose) - chartPreviousClose).sign == .plus ? UIColor.systemGreen.cgColor : UIColor.systemRed.cgColor)
+                    context.setStrokeColor(((quote?.close?[0] ?? chartPreviousClose) - chartPreviousClose).sign == .plus ? UIColor.systemGreen.cgColor : UIColor.systemRed.cgColor)
 
                     for index in 1..<timeStamp.count {
 
@@ -104,7 +101,7 @@ class GraphView<ViewModel>: UIView where ViewModel: ChartViewProtocol {
 
                     context.addLine(to: CGPoint(
                         x: 0,
-                        y: coordinateY(price: quote.close?[0] ?? chartPreviousClose, size: size)))
+                        y: coordinateY(price: quote?.close?[0] ?? chartPreviousClose, size: size)))
 
                     context.setStrokeColor(UIColor.systemBackground.withAlphaComponent(0.5).cgColor)
                     context.strokePath()
@@ -124,6 +121,17 @@ class GraphView<ViewModel>: UIView where ViewModel: ChartViewProtocol {
                     context.setLineWidth(1)
 
                     context.strokePath()
+                    
+                    if let regularMarketPrice = self.viewModel.fundamental?.optionChain?.result?.first?.quote?.regularMarketPrice {
+                        
+                        context.setFillColor((regularMarketPrice - chartPreviousClose).sign == .plus ? UIColor.systemGreen.cgColor : UIColor.systemRed.cgColor)
+                        
+                        context.move(to: CGPoint(x: CGFloat(timeStamp.count) * stepX, y: coordinateY(price: regularMarketPrice, size: size)))
+                        
+                        context.addEllipse(in: CGRect(x: CGFloat(timeStamp.count) * stepX - 1.5, y: coordinateY(price: regularMarketPrice, size: size) - 1.5, width: 3, height: 3))
+                        context.fillPath()
+                    }
+                    
                 }
             }
         }
@@ -132,7 +140,7 @@ class GraphView<ViewModel>: UIView where ViewModel: ChartViewProtocol {
             
             guard let quote = viewModel.chart?.chart?.result?.first??.indicators?.quote?.first,
                 let meta = viewModel.chart?.chart?.result?.first??.meta, let chartPreviousClose = meta.chartPreviousClose else { return 0 }
-            let previousPrice = (index == 1 ? (quote.close?[0] ?? chartPreviousClose) : (self.viewModel.priceForIndex(index - 1)))
+            let previousPrice = (index == 1 ? (quote?.close?[0] ?? chartPreviousClose) : (self.viewModel.priceForIndex(index - 1)))
             let deltaY = CGFloat(self.viewModel.priceForIndex(index) - previousPrice)
             let differential = deltaX / deltaY
             let coordinateX = deltaX * CGFloat(index - 1) + CGFloat(self.viewModel.priceForIndex(index) - chartPreviousClose) * differential

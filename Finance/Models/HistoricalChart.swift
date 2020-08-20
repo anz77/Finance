@@ -124,7 +124,7 @@ public struct Split: Codable {
 
 // MARK: - Indicators
 public struct Indicators: Codable {
-    public let quote: [HistoricalChartQuote]?
+    public let quote: [HistoricalChartQuote?]?
     public let adjclose: [AdjClose?]?
 
     enum CodingKeys: String, CodingKey {
@@ -132,7 +132,7 @@ public struct Indicators: Codable {
         case adjclose = "adjclose"
     }
 
-    public init(quote: [HistoricalChartQuote]?, adjclose: [AdjClose?]?) {
+    public init(quote: [HistoricalChartQuote?]?, adjclose: [AdjClose?]?) {
         self.quote = quote
         self.adjclose = adjclose
     }

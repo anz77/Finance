@@ -93,6 +93,8 @@ final class MainViewModel: ObservableObject, Identifiable {
         
         NotificationCenter.default.addObserver(self, selector: #selector(sceneWillTDeactivate(notification:)), name: UIScene.willDeactivateNotification, object: nil)
         
+         NotificationCenter.default.addObserver(self, selector: #selector(sceneDidActivate(notification:)), name: UIScene.didActivateNotification, object: nil)
+        
         checkInternetAvailabilityIfChangedPreviousValue(internetChecker)
         
     }
@@ -124,9 +126,28 @@ final class MainViewModel: ObservableObject, Identifiable {
     }
     
     @objc func sceneWillTDeactivate(notification: Notification) {
-        self.chartViewModels.forEach { $0.storeFundamentalToDisc()}
-        for list in symbolsLists {
-            debugPrint("\(list.name) isActive: \(list.isActive)")
+        
+        self.chartViewModels.forEach {
+            $0.storeFundamentalToDisc()
+            if $0.mode == .active {
+                $0.mode = .waiting
+            }
+            
+        }
+        
+    }
+    
+    @objc func sceneDidActivate(notification: Notification) {
+        
+        //debugPrint("sceneDidActivate")
+        
+        self.chartViewModels.forEach {
+            
+            if self.internetChecker {
+                if $0.mode == .waiting {
+                    $0.mode = .active
+                }
+            }
         }
     }
     
@@ -164,6 +185,27 @@ final class MainViewModel: ObservableObject, Identifiable {
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
             self.checkInternetAvailabilityIfChangedPreviousValue(self.internetChecker)
         }
+    }
+    
+    
+    
+    func addNewModelWithSimbol(_ symbol: String, from detailViewModel: DetailChartViewModel, toListWithIndex index: Int) {
+        
+        let newViewModel = ChartViewModel(withSymbol: symbol)
+        
+        if self.internetChecker {
+            if self.symbolsLists[index].isActive {
+                newViewModel.mode = .active
+            } else {
+                newViewModel.mode = .hidden
+            }
+        } else {
+            newViewModel.mode = .waiting
+        }
+        
+        newViewModel.fundamental = self.detailViewModel?.fundamental
+        
+        self.chartViewModels.append(newViewModel)
     }
     
     

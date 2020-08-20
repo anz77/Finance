@@ -23,7 +23,10 @@ struct MainView: View {
     @State var isSettingsMode: Bool = false
 
     @State var rssIsActive: Bool = false
+    
     @State var detailIsActive: Bool = false
+    
+    @State var RSSIsVisible: Bool = false
     
     var body: some View {
                 
@@ -35,7 +38,7 @@ struct MainView: View {
                 if !self.mainViewModel.internetChecker {
                     HStack {
                         Spacer()
-                        Text("Internet isn't availabled")
+                        Text("Internet is not available")
                             .font(.headline)
                             .foregroundColor(Color(.systemYellow))
                             
@@ -44,7 +47,7 @@ struct MainView: View {
                     }
                     .background(Color(.systemRed))
                     .padding([.horizontal], 40)
-                    .cornerRadius(5)
+                    .cornerRadius(10)
                 } // internet checker view end
           
                 
@@ -52,7 +55,10 @@ struct MainView: View {
                 ScrollView(.vertical, showsIndicators: true, content: {
                     
                     HStack(spacing: 0) {
-                        Text("Lists:").font(.title).fontWeight(.bold).foregroundColor(Color(.systemGray2))
+                        Text("Lists:")
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .foregroundColor(Color(.systemGray2))
                         Spacer()
                         Button(action: {
                             self.isEditMode = true
@@ -70,29 +76,8 @@ struct MainView: View {
                         .sheet(isPresented: $isEditMode, content: {
                             EditView(mainViewModel: self.mainViewModel)
                                 .background(Color(UIColor.systemGray5.withAlphaComponent(0.5)))
-                                .onAppear {
-                                    /*
-                                    self.mainViewModel.chartViewModels.forEach{
-                                        //$0.stopTimers()
-                                        if $0.mode != .hidden {
-                                            $0.mode = .waiting
-                                        }
-                                    }*/
-                                   // debugPrint("EditView Appeared")
-                                    
-                            }
-                            .onDisappear {
-                                //debugPrint("EditView Disappeared")
-                                self.isEditMode = false
-                                /*
-                                self.mainViewModel.chartViewModels.forEach{
-                                    //$0.start()
-                                    
-                                    if $0.mode != .hidden {
-                                        $0.mode = .active
-                                    }
-                                }*/
-                            }
+                                .onAppear {}
+                                .onDisappear { self.isEditMode = false }
                         }) // sheet
                     }
                     .padding()
@@ -119,6 +104,8 @@ struct MainView: View {
                                             self.mainViewModel.detailViewModel = nil
                                             self.detailIsActive = false
                                             
+                                            //debugPrint("onDisappear")
+                                            
                                             if self.mainViewModel.internetChecker {
                                                 self.mainViewModel.chartViewModels.forEach{
                                                     if $0.mode != .hidden {
@@ -138,31 +125,60 @@ struct MainView: View {
                         }(), isActive: self.$detailIsActive) // NavigationLink
                             .opacity(0)
                         
-                        
                         VStack(spacing: 10) {
                             
                             ForEach(mainViewModel.symbolsLists, id: \.id) { list in
                                 ListView(list: list, mainViewModel: self.mainViewModel, detailIsActive: self.$detailIsActive)
+                                //.animation(.default)
                             }
                             .id(UUID())
-                            
                         }
-                    
                     } // ZStack (ForEach & NavigationLink)
-                        .padding([.top], -20)
+                    .padding([.top], -10)
                     
                     
                     Spacer()
-                        .frame(height: 10)
+                        .frame(height: 30)
                     
-                    HStack(spacing: 0) {
-                        Text("News").font(.title).fontWeight(.bold).foregroundColor(Color(.systemGray2))
-                        Spacer()
+                    
+//MARK: - RSS button
+                    Button(action: {
+                        self.mainViewModel.rssSubject.send()
+                        withAnimation(.linear(duration: 0.3)) {
+                            self.RSSIsVisible.toggle()
+                        }
+                    }) {
+                        HStack(spacing: 0) {
+
+                            Text(self.RSSIsVisible ? "News" : "News list")
+                                .font(self.RSSIsVisible ? .title : .body)
+                                .fontWeight(.bold)
+                                .foregroundColor(self.RSSIsVisible ? Color(.systemGray2) : Color(.systemGray))
+                                .animation(.none)
+                                .padding(.leading)
+
+                            Text(":")
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .foregroundColor(self.RSSIsVisible ? Color(.systemGray2) : Color(.clear))
+                                .animation(.none)
+
+                            Spacer()
+
+                            Image(systemName: self.RSSIsVisible ? "chevron.up": "chevron.down").foregroundColor(Color(.systemGray2))
+                            .padding()
+                        }
+
+
                     }
-                    .padding()
+                    .background(self.RSSIsVisible ? Color(.clear) : Color(.quaternarySystemFill))
+                    .cornerRadius(10)
+                    .padding(.horizontal, 10)
+                    .padding(.bottom, 10)
+                    .animation(.none)
+
                     
-                    
-//MARK: - RSS
+//MARK: - RSS list
                     ZStack {
                         
                         NavigationLink("RSS", destination: {
@@ -197,28 +213,37 @@ struct MainView: View {
                             .opacity(0)
                         
                         
-                        VStack(alignment: .leading, spacing: 0) {
-                            ForEach(mainViewModel.rss, id: \.id) {  item in
-                                Button(action: {
-                                    self.rssIsActive = true
-                                    self.mainViewModel.currentRssUrl = URL(string: item.link)
-                                }) {
-                                    VStack {
-                                        RSSView(item: item)
-                                            .padding([.trailing, .leading, .bottom], 5)
-                                    }
-                                } // Button
+                        if self.RSSIsVisible == true {
+                            
+                            VStack(alignment: .leading, spacing: 0) {
+                                ForEach(mainViewModel.rss, id: \.id) {  item in
+                                    Button(action: {
+                                        self.rssIsActive = true
+                                        self.mainViewModel.currentRssUrl = URL(string: item.link)
+                                    }) {
+                                        VStack {
+                                            RSSView(item: item)
+                                        }
+                                    } // Button
+                                   
+                                }
+                                .background(Color(.systemBackground))
+                            .cornerRadius(10)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 3)
                             }
+                            
                         }
-                        .background(Color(.systemBackground))
+                        
+                        
                     }
+                    .padding([.top], -20)
                     
                     
                 }) // ScrollView
                     
                     .onAppear(perform: { })
                     .onDisappear(perform: {
-                        //debugPrint("MainView Disappeared")
                         self.isSearchMode = false
                     })
                     .background(Color(UIColor.systemGray5.withAlphaComponent(0.5)))
@@ -248,25 +273,9 @@ struct MainView: View {
                             
                         })
                             .sheet(isPresented: $isSearchMode, content: {
-                                //SearchView(mainViewModel: self.mainViewModel, detailIsActive: self.$detailIsActive,  isSearchMode: self.$isSearchMode)
                                 SearchViewUI(mainViewModel: self.mainViewModel, detailIsActive: self.$detailIsActive, isSearchMode: self.$isSearchMode)
-                                    .onAppear {
-                                        /*
-                                        self.mainViewModel.chartViewModels.forEach {
-                                            if $0.mode != .hidden {
-                                                $0.mode = .waiting
-                                            }
-                                        }*/
-                                        
-                                }
-                                    .onDisappear {
-                                        /*
-                                        self.mainViewModel.chartViewModels.forEach {
-                                            if $0.mode != .hidden {
-                                                $0.mode = .active
-                                            }
-                                        }*/
-                                }
+                                    .onAppear {}
+                                    .onDisappear {}
                             }) // sheet
                 ) // navigationBarItems
             }

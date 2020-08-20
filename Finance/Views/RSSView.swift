@@ -25,10 +25,9 @@ struct RSSView: View {
                 .font(.headline)
                 .foregroundColor(.secondary)
                 .lineLimit(3)
-                .padding([.leading, .trailing])
+                .padding([.leading, .trailing, .bottom])
             
             Divider()
-            .padding(.horizontal)
             
         }
         

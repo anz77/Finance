@@ -54,6 +54,7 @@ enum StorageService {
         guard let url = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
             return nil
         }
+        //debugPrint(url)
         return url.appendingPathComponent(fileName)
     }
     
@@ -79,6 +80,7 @@ enum StorageService {
     
 //MARK: - STORING TO DISC
     static func storeData<T: Codable>(_ data: T, url: URL) throws {
+        //debugPrint("store to \(url)")
         
         do {
             let encoder = JSONEncoder()
@@ -88,13 +90,13 @@ enum StorageService {
             do {
                 try data.write(to: url)
             } catch {
-                debugPrint(error)
+                //debugPrint(error)
                 //throw error
                 throw StorageError.writtingFailed
 
             }
         } catch {
-            debugPrint(error)
+            //debugPrint(error)
             throw error as? EncodingError ?? error
         }
         
@@ -106,13 +108,13 @@ enum StorageService {
     static func readData<T: Codable>(from url: URL, decodableType: T.Type, completion: @escaping (_ object: T)->()) throws {
 
         guard FileManager.default.fileExists(atPath: url.path) else {
-            debugPrint("fileExists ERROR!!!")
-
+            //debugPrint("fileExists ERROR!!!")
+            //debugPrint(url)
             throw StorageError.fileNotExists
         }
         
         guard let data = try? Data(contentsOf: url, options: Data.ReadingOptions.mappedIfSafe) else {
-            debugPrint("data ERROR!!!")
+            //debugPrint("data ERROR!!!")
 
             throw StorageError.readingFailed
         }
@@ -121,7 +123,7 @@ enum StorageService {
             let decoded = try JSONDecoder().decode(decodableType, from: data)
             completion(decoded)
         } catch {
-            debugPrint("decoding ERROR!!!")
+            //debugPrint("decoding ERROR!!!")
 
             throw error as? DecodingError ?? error
         }
@@ -134,7 +136,7 @@ enum StorageService {
             let rssItems = parser.parsedItemsFromData(data)
             completion(rssItems)
         } catch {
-            debugPrint("xml reading ERROR!!!")
+            //debugPrint("xml reading ERROR!!!")
         }
     }
     
@@ -145,28 +147,28 @@ enum StorageService {
                 let data = try Data(contentsOf: URL(fileURLWithPath: path), options: Data.ReadingOptions.mappedIfSafe)
                 completion(data)
             } catch {
-                debugPrint("xml file ERROR!!!")
+                //debugPrint("xml file ERROR!!!")
             }
         }
     }
     
     
 //MARK: - REMOVE FROM DISC
-//
-//    static func clearAllFiles() {
-//
-//        debugPrint("CLEARING")
-//
-//        let fileManager = FileManager.default
-//        let myDocuments = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
-//        do {
-//            try fileManager.removeItem(at: myDocuments)
-//        } catch {
-//            debugPrint("CLEARING ERROR")
-//            return
-//        }
-//    }
-//
+
+    static func clearAllFiles() {
+
+        //debugPrint("CLEARING")
+
+        let fileManager = FileManager.default
+        let myDocuments = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
+        do {
+            try fileManager.removeItem(at: myDocuments)
+        } catch {
+            //debugPrint("CLEARING ERROR")
+            return
+        }
+    }
+
     static func getSymbolsFiles() -> [String] {
 
         let documentsUrl =  FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
@@ -178,7 +180,7 @@ enum StorageService {
             return names
 
         } catch {
-            debugPrint(error)
+            //debugPrint(error)
             return []
         }
         

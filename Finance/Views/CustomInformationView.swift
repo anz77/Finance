@@ -16,29 +16,83 @@ struct CustomInformationView: View {
     var time: Int?
     var timeZone: String?
     var marketStateText: String?
+    var subMarketStateText: String?
+    
+    let bigPrice: Bool
     
     var body: some View {
+        
         VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 0) {
-                Text(formattedTextFor(value: price, signed: false))
-                    
+            
+            HStack {
+                Text(marketStateText ?? "")
                     .lineLimit(1)
-                Text(" " + formattedTextFor(value: priceChange, signed: true))
-                    
-                    .lineLimit(1)
-                    .foregroundColor(Color(foregroundColor(for: priceChange)))
-                Text(" (" + formattedTextFor(value: priceChangePercent, signed: true) + "%)")
-                    
+                
+                Spacer()
+                
+                Text(subMarketStateText ?? "")
+                    .fontWeight(.bold)
+                    .foregroundColor(Color(.systemGray2))
                 .lineLimit(1)
-                    .foregroundColor(Color(foregroundColor(for: priceChangePercent)))
+                
+                
             }
             
+            HStack(alignment: .center, spacing: 0) {
+                
+                VStack(alignment: .leading, spacing: 0) {
+                    
+                    HStack(alignment: .center, spacing: 0) {
+                        
+                        
+                        if price != nil {
+                            Text(formattedTextFor(value: price, signed: false))
+                            .font(bigPrice ? .largeTitle : .body)
+                            .fontWeight(.heavy)
+                            .lineLimit(1)
+                            .layoutPriority(1)
+                        } else {
+                            Text("EMPTY")
+                                .foregroundColor(Color(.clear))
+                            .font(bigPrice ? .largeTitle : .body)
+                            .fontWeight(.heavy)
+                            .lineLimit(1)
+                            .layoutPriority(1)
+                        }
+                            
+                    }
+                    
+                    HStack(alignment: .center, spacing: 0) {
+                        
+                        if priceChange != nil {
+                            Text(" " + formattedTextFor(value: priceChange, signed: true))
+                            .lineLimit(1)
+                            .foregroundColor(Color(foregroundColor(for: priceChange)))
+                        } else {
+                            Text("EMPTY")
+                            .foregroundColor(Color(.clear))
+                            .lineLimit(1)
+                        }
+                        
+                        if priceChangePercent != nil {
+                            Text(" (" + formattedTextFor(value: priceChangePercent, signed: true) + "%)")
+                            .lineLimit(1)
+                            .foregroundColor(Color(foregroundColor(for: priceChangePercent)))
+                        } else {
+                            Text("EMPTY")
+                            .foregroundColor(Color(.clear))
+                            .lineLimit(1)
+                        }
+                    }
+                }
+                
+                Spacer()
 
-            Text(marketStateText ?? "").fontWeight(.bold)
-            .foregroundColor(Color(.systemGray))
-
-            self.viewForDate(time, timeZone: timeZone)
+                self.viewForDate(time, timeZone: timeZone)
+                
+            }
         }
+        
         .font(.subheadline)
     }
     
@@ -69,9 +123,21 @@ struct CustomInformationView: View {
     func viewForDate(_ date: Int?, timeZone: String?) -> some View {
         
         return VStack(alignment: .leading, spacing: 0) {
-            Text(self.stringFromDateInSeconds(date: date ?? Int(Date().timeIntervalSince1970), timeZone: timeZone ?? "UTC"))
             
-            Text(self.stringFromDateInDays(date: date ?? Int(Date().timeIntervalSince1970), timeZone: timeZone ?? "UTC"))
+            if date == nil {
+                Text("EMPTY")
+                .foregroundColor(Color(.clear))
+                .lineLimit(1)
+                Text("EMPTY")
+                .foregroundColor(Color(.clear))
+                .lineLimit(1)
+            } else {
+                Text(self.stringFromDateInSeconds(date: date ?? Int(Date().timeIntervalSince1970), timeZone: timeZone ?? "UTC"))
+                    .lineLimit(1)
+                                
+                Text(self.stringFromDateInDays(date: date ?? Int(Date().timeIntervalSince1970), timeZone: timeZone ?? "UTC"))
+                    .lineLimit(1)
+            }
         }
     }
     
@@ -98,6 +164,6 @@ struct CustomInformationView: View {
 
 struct CustomInformationView_Previews: PreviewProvider {
     static var previews: some View {
-        CustomInformationView(price: 311.12345, priceChange: -10.98765, priceChangePercent: -0.754, time: 150000000, timeZone: "UTC", marketStateText: "At Close:")
+        CustomInformationView(price: 311.12345, priceChange: -10.98765, priceChangePercent: -0.754, time: 150000000, timeZone: "UTC", marketStateText: "Market CLOSED", subMarketStateText: "POST-MARKET", bigPrice: false)
     }
 }

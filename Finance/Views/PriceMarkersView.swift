@@ -69,7 +69,6 @@ struct PriceMarkersView: View {
             .frame(width: geometry.size.width, height: geometry.size.height)
             .font(.footnote)
             
-            
         }
         
     }

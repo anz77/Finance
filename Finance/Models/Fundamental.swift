@@ -164,7 +164,9 @@ public struct FundamentalQuote: Codable {
     public let trailingAnnualDividendRate: Double?
     public let trailingPE: Double?
     public let trailingAnnualDividendYield: Double?
-    public let marketState: MarketState?
+    //public let marketState: MarketState?
+    public let marketState: String?
+
     public let epsTrailingTwelveMonths: Double?
     public let epsForward: Double?
     public let sharesOutstanding: Int?
@@ -356,7 +358,7 @@ public struct FundamentalQuote: Codable {
         
     }
 
-    public init(language: String?, region: String?, quoteType: String?, quoteSourceName: String?, triggerable: Bool?, currency: String?, fiftyTwoWeekLowChange: Double?, fiftyTwoWeekLowChangePercent: Double?, fiftyTwoWeekRange: String?, fiftyTwoWeekHighChange: Double?, fiftyTwoWeekHighChangePercent: Double?, fiftyTwoWeekLow: Double?, fiftyTwoWeekHigh: Double?, dividendDate: Int?, earningsTimestamp: Int?, earningsTimestampStart: Int?, earningsTimestampEnd: Int?, trailingAnnualDividendRate: Double?, trailingPE: Double?, trailingAnnualDividendYield: Double?, marketState: MarketState?, epsTrailingTwelveMonths: Double?, epsForward: Double?, sharesOutstanding: Int?, bookValue: Double?, fiftyDayAverage: Double?, fiftyDayAverageChange: Double?, fiftyDayAverageChangePercent: Double?, twoHundredDayAverage: Double?, twoHundredDayAverageChange: Double?, marketCap: Int?, forwardPE: Double?, priceToBook: Double?, sourceInterval: Int?, exchangeDataDelayedBy: Int?, exchangeTimezoneName: String?, exchangeTimezoneShortName: String?, gmtOffSetMilliseconds: Int?, esgPopulated: Bool?, tradeable: Bool?, twoHundredDayAverageChangePercent: Double?, firstTradeDateMilliseconds: Int?, priceHint: Int?, postMarketChangePercent: Double?, postMarketTime: Int?, postMarketPrice: Double?, postMarketChange: Double?, regularMarketChange: Double?, regularMarketChangePercent: Double?, regularMarketTime: Int?, regularMarketPrice: Double?, regularMarketDayHigh: Double?, regularMarketDayRange: String?, regularMarketDayLow: Double?, regularMarketVolume: Int?, regularMarketPreviousClose: Double?, bid: Double?, ask: Double?, bidSize: Int?, askSize: Int?, exchange: String?, market: String?, messageBoardID: String?, fullExchangeName: String?, shortName: String?, longName: String?, financialCurrency: String?, regularMarketOpen: Double?, averageDailyVolume3Month: Int?, averageDailyVolume10Day: Int?, displayName: String?, symbol: String?, circulatingSupply: Int?, maxSupply: Int?, lastMarket: String?, volume24Hr: Int?, volumeAllCurrencies: Int?, fromCurrency: String?, toCurrency: String?, startDate: Int?, coinImageURL: String?, preMarketChange: Double?, preMarketChangePercent: Double?, preMarketTime: Int?, preMarketPrice: Double?, ytdReturn: Double?, trailingThreeMonthReturns: Double?, trailingThreeMonthNavReturns: Double?) {
+    public init(language: String?, region: String?, quoteType: String?, quoteSourceName: String?, triggerable: Bool?, currency: String?, fiftyTwoWeekLowChange: Double?, fiftyTwoWeekLowChangePercent: Double?, fiftyTwoWeekRange: String?, fiftyTwoWeekHighChange: Double?, fiftyTwoWeekHighChangePercent: Double?, fiftyTwoWeekLow: Double?, fiftyTwoWeekHigh: Double?, dividendDate: Int?, earningsTimestamp: Int?, earningsTimestampStart: Int?, earningsTimestampEnd: Int?, trailingAnnualDividendRate: Double?, trailingPE: Double?, trailingAnnualDividendYield: Double?, marketState: String?, epsTrailingTwelveMonths: Double?, epsForward: Double?, sharesOutstanding: Int?, bookValue: Double?, fiftyDayAverage: Double?, fiftyDayAverageChange: Double?, fiftyDayAverageChangePercent: Double?, twoHundredDayAverage: Double?, twoHundredDayAverageChange: Double?, marketCap: Int?, forwardPE: Double?, priceToBook: Double?, sourceInterval: Int?, exchangeDataDelayedBy: Int?, exchangeTimezoneName: String?, exchangeTimezoneShortName: String?, gmtOffSetMilliseconds: Int?, esgPopulated: Bool?, tradeable: Bool?, twoHundredDayAverageChangePercent: Double?, firstTradeDateMilliseconds: Int?, priceHint: Int?, postMarketChangePercent: Double?, postMarketTime: Int?, postMarketPrice: Double?, postMarketChange: Double?, regularMarketChange: Double?, regularMarketChangePercent: Double?, regularMarketTime: Int?, regularMarketPrice: Double?, regularMarketDayHigh: Double?, regularMarketDayRange: String?, regularMarketDayLow: Double?, regularMarketVolume: Int?, regularMarketPreviousClose: Double?, bid: Double?, ask: Double?, bidSize: Int?, askSize: Int?, exchange: String?, market: String?, messageBoardID: String?, fullExchangeName: String?, shortName: String?, longName: String?, financialCurrency: String?, regularMarketOpen: Double?, averageDailyVolume3Month: Int?, averageDailyVolume10Day: Int?, displayName: String?, symbol: String?, circulatingSupply: Int?, maxSupply: Int?, lastMarket: String?, volume24Hr: Int?, volumeAllCurrencies: Int?, fromCurrency: String?, toCurrency: String?, startDate: Int?, coinImageURL: String?, preMarketChange: Double?, preMarketChangePercent: Double?, preMarketTime: Int?, preMarketPrice: Double?, ytdReturn: Double?, trailingThreeMonthReturns: Double?, trailingThreeMonthNavReturns: Double?) {
         self.language = language
         self.region = region
         self.quoteType = quoteType
@@ -454,14 +456,15 @@ public struct FundamentalQuote: Codable {
 
     }
 }
-
-public enum MarketState: String, Codable {
-    case regular = "REGULAR"
-    case closed = "CLOSED"
-    case pre = "PRE"
-    case prepre = "PREPRE"
-    case post = "POST"
-    case undefined
-}
+//
+//public enum MarketState: String, Codable {
+//    case regular = "REGULAR"
+//    case closed = "CLOSED"
+//    case pre = "PRE"
+//    case prepre = "PREPRE"
+//    case post = "POST"
+//    case postpost = "POSTPOST"
+//    case undefined
+//}
 
 

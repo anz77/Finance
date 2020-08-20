@@ -19,15 +19,17 @@ struct DetailChartView: View {
     @State var timeStampIndex: Int?
     @State var rssIsActive: Bool = false
     
-    @State var storeSymbol: Bool = false
-    
     @State private var shouldAnimate = false
+    
+    @State var storeSymbolToListMode: Bool = false
+    
                     
     var quote: FundamentalQuote? { viewModel.fundamental?.optionChain?.result?.first?.quote ?? nil }
     var chartQuote: HistoricalChartQuote? { viewModel.chart?.chart?.result?.first??.indicators?.quote?.first ?? nil }
     var chartMeta: Meta? { viewModel.chart?.chart?.result?.first??.meta ?? nil }
     var modulesResult: ModulesResult? { viewModel.modules?.quoteSummary?.result?.first ?? nil }
     var timeStampCount: Int? { viewModel.chart?.chart?.result?.first??.timestamp?.count ?? nil }
+    
     
     var body: some View {
         
@@ -37,7 +39,7 @@ struct DetailChartView: View {
             if !self.viewModel.internetChecker {
                 HStack {
                     Spacer()
-                    Text("Internet isn't availabled")
+                    Text("Internet is not available")
                         .font(.headline)
                         .foregroundColor(Color(.systemYellow))
                     
@@ -51,12 +53,12 @@ struct DetailChartView: View {
 
 //MARK: - symbol
             if viewModel.fundamental != nil {
+                
                 ScrollView(.vertical, showsIndicators: true) {
                     
                     VStack(alignment: .leading, spacing: 0) {
                         
                         VStack(alignment: .leading, spacing: 0) {
-                            
                             
                             HStack(alignment: .firstTextBaseline, spacing: 0) {
                                 Text(viewModel.fundamental?.optionChain?.result?.first?.underlyingSymbol ?? "")
@@ -72,88 +74,21 @@ struct DetailChartView: View {
                                 
                                 Spacer()
                                 
-                                
-                                
 //MARK: - Add symbol to symbols lists BUTTON
                                 if !self.symbolsListsContainVewModelSymbol() {
                                     Button(action: {
-                                        self.storeSymbol = true
+                                        self.storeSymbolToListMode = true
                                     }) {
-                                        Text("Add to Watchlist")
+                                        Text("Add to List")
                                             .font(.callout)
                                             .foregroundColor(Color(.tertiarySystemBackground))
                                             .padding(.horizontal, 5)
                                             .background(Color(UIColor.systemBlue))
                                             .cornerRadius(5)
-                                        //.layoutPriority(1)
+                                        
                                     }
-                                    .sheet(isPresented: $storeSymbol, onDismiss: {}) {
-                                        VStack(alignment: .leading, spacing: 50) {
-                                            Text("Save item into List:")
-                                                .font(.title)
-                                                .fontWeight(.bold)
-                                                .foregroundColor(Color(.systemGray))
-                                            
-                                            ForEach(0..<self.mainViewModel.symbolsLists.count) { index in
-                                                Button(action: {
-                                                    guard let symbol = self.viewModel.symbol else {return}
-                                                    self.mainViewModel.symbolsLists[index].symbolsArray.append(symbol)
-                                                    
-                                                    let viewModel = ChartViewModel(withSymbol: symbol)
-                                                    
-                                                    
-                                                    if self.viewModel.internetChecker {
-                                                        if self.mainViewModel.symbolsLists[index].isActive {
-                                                            viewModel.mode = .active
-                                                        } else {
-                                                            viewModel.mode = .hidden
-                                                        }
-                                                    } else {
-                                                        viewModel.mode = .waiting
-                                                    }
-                                                    
-                                                    viewModel.fundamental = self.viewModel.fundamental
-                                                    self.mainViewModel.chartViewModels.append(viewModel)
-                                                    self.storeSymbol.toggle()
-                                                }) {
-                                                    Text(self.mainViewModel.symbolsLists[index].name)
-                                                        .font(.body)
-                                                        .fontWeight(.bold)
-                                                }
-                                            }
-                                            
-                                            Button(action: {
-                                                guard let symbol = self.viewModel.symbol else {return}
-                                                
-                                                self.mainViewModel.symbolsLists.insert(SymbolsList(name: "New List", symbolsArray: [symbol], isActive: true), at: 0)
-                                                
-                                                
-                                                let viewModel = ChartViewModel(withSymbol: symbol)
-                                                
-                                                
-                                                if self.viewModel.internetChecker {
-                                                    if self.mainViewModel.symbolsLists[0].isActive {
-                                                        viewModel.mode = .active
-                                                    } else {
-                                                        viewModel.mode = .hidden
-                                                    }
-                                                } else {
-                                                    viewModel.mode = .waiting
-                                                }
-                                                
-                                                viewModel.fundamental = self.viewModel.fundamental
-                                                self.mainViewModel.chartViewModels.append(viewModel)
-                                                self.storeSymbol.toggle()
-                                                
-                                                
-                                            }) {
-                                                HStack(alignment: .center, spacing: 0) {
-                                                    Image(systemName: "plus.circle")//.padding()
-                                                    
-                                                    Text(" Add to \"New List\"").padding()
-                                                }
-                                            }
-                                        }
+                                    .sheet(isPresented: $storeSymbolToListMode, onDismiss: {}) {
+                                        SaveItemView(viewModel: self.viewModel, storeSymbolToListMode: self.$storeSymbolToListMode).environmentObject(self.mainViewModel)
                                     }
                                 } //Add symbol to symbols lists BUTTON scope end
                                 
@@ -163,7 +98,7 @@ struct DetailChartView: View {
                             .padding([.bottom], 5)
                             
                             
-//MARK: - quoteType
+                            //MARK: - quoteType
                             HStack(alignment: .top, spacing: 0) {
                                 
                                 VStack(alignment: .leading, spacing: 0) {
@@ -177,115 +112,93 @@ struct DetailChartView: View {
                                 
                                 Spacer()
                                 
-                                VStack(alignment: .leading, spacing: 0) {
+                                VStack(alignment: .trailing, spacing: 0) {
                                     HStack(alignment: .center, spacing: 0) {
                                         Text("Exchange:")
-                                            //.lineLimit(1)
                                             .foregroundColor(Color(.systemGray))
                                             .padding(.trailing)
                                         
                                         Text(self.quote?.fullExchangeName ?? self.quote?.exchange ?? "")
                                             .fontWeight(.bold)
-                                            //.lineLimit(1)
+                                        
                                     }.lineLimit(1)
-
                                     
-                                    HStack(alignment: .center, spacing: 0) {
-                                        Text(self.quote?.quoteSourceName ?? "")
-                                    }
+                                    /*
+                                     HStack(alignment: .center, spacing: 0) {
+                                     Text(self.quote?.quoteSourceName ?? "")
+                                     }
+                                     */
                                 }
                                 .font(.caption)
                             }
                             
                             
- //MARK: - custom infoermation view
-                            HStack(alignment: .center, spacing: 0) {
-                                if indicatorViewIsVisible == false {
-                                    Text(formattedTextForDouble(value: self.quote?.regularMarketPrice, signed: false) ?? "N/A")
-                                        .font(.largeTitle)
-                                        .fontWeight(.heavy)
-                                } else {
-                                    if (timeStampIndex ?? 0) < (timeStampCount ?? 0) {
-                                        Text(formattedTextForDouble(value: priceForIndex(timeStampIndex ?? 0), signed: false) ?? "N/A")
-                                            .font(.largeTitle)
-                                            .fontWeight(.bold)
-                                    } else {
-                                        Text(formattedTextForDouble(value: self.chartQuote?.close?[(timeStampCount ?? 1) - 1], signed: false) ?? "N/A")
-                                            .font(.largeTitle)
-                                            .fontWeight(.bold)
-                                    }
-                                }
-                            }
+                            //MARK: - custom infoermation view
                             
-                            
-                            HStack(alignment: .center, spacing: 0) {
+                            VStack(alignment: .center, spacing: 0) {
                                 
                                 if indicatorViewIsVisible == false {
-                                    HStack {
-                                        CustomInformationView(price: nil, priceChange: self.quote?.regularMarketChange, priceChangePercent: self.quote?.regularMarketChangePercent, time: self.quote?.regularMarketTime, timeZone: self.quote?.exchangeTimezoneShortName, marketStateText: self.quote?.marketState == .regular ? "Change since" : "At close:")
+                                    VStack {
+                                        CustomInformationView(price: self.quote?.regularMarketPrice, priceChange: self.quote?.regularMarketChange, priceChangePercent: self.quote?.regularMarketChangePercent, time: self.quote?.regularMarketTime, timeZone: self.quote?.exchangeTimezoneShortName, marketStateText: "", subMarketStateText: "",bigPrice: true)
+                                        Spacer().frame(height: 10)
+                                        Divider()
                                         
                                         if self.quote?.preMarketPrice != nil {
-                                            CustomInformationView(price: self.quote?.preMarketPrice, priceChange: self.quote?.preMarketChange, priceChangePercent: self.quote?.preMarketChangePercent, time: self.quote?.preMarketTime, timeZone: self.quote?.exchangeTimezoneShortName, marketStateText: "Before hours:")
+                                            CustomInformationView(price: self.quote?.preMarketPrice, priceChange: self.quote?.preMarketChange, priceChangePercent: self.quote?.preMarketChangePercent, time: self.quote?.preMarketTime, timeZone: self.quote?.exchangeTimezoneShortName, marketStateText: "Market CLOSED", subMarketStateText: "PRE-MARKET", bigPrice: false)
+                                            
                                         } else if self.quote?.postMarketPrice != nil {
-                                            CustomInformationView(price: self.quote?.postMarketPrice, priceChange: self.quote?.postMarketChange, priceChangePercent: self.quote?.postMarketChangePercent, time: self.quote?.postMarketTime, timeZone: self.quote?.exchangeTimezoneShortName, marketStateText: "After hours:")
+                                            CustomInformationView(price: self.quote?.postMarketPrice, priceChange: self.quote?.postMarketChange, priceChangePercent: self.quote?.postMarketChangePercent, time: self.quote?.postMarketTime, timeZone: self.quote?.exchangeTimezoneShortName, marketStateText: "Market CLOSED", subMarketStateText: "POST-MARKET", bigPrice: false)
                                         } else {
-                                            EmptyView()
+                                            CustomInformationView(price: nil, priceChange: nil, priceChangePercent: nil, time: nil, timeZone: nil, marketStateText: self.quote?.marketState == "REGULAR" ? "Market OPENED" : "Market CLOSED", subMarketStateText: self.quote?.marketState == "REGULAR" ? "REGULAR" : "", bigPrice: false)
                                         }
-                                        
                                     }
                                 } else {
-                                    HStack {
-                                        CustomInformationView(price: nil, priceChange: self.currentMarketChange(timeStampIndex: timeStampIndex), priceChangePercent: self.currentMarketChangePercent(timeStampIndex: timeStampIndex), time: self.currentTimeStamp(timeStampIndex: self.timeStampIndex), timeZone: self.quote?.exchangeTimezoneShortName, marketStateText: self.quote?.marketState == .regular ? "Change since" : "At close:")
+                                    VStack {
+                                        CustomInformationView(price: ((timeStampIndex ?? 0) < (timeStampCount ?? 0)) ? priceForIndex(timeStampIndex ?? 0) : /*self.chartQuote?.close?[(timeStampCount ?? 1) - 1]*/ 0, priceChange: self.currentMarketChange(timeStampIndex: timeStampIndex), priceChangePercent: self.currentMarketChangePercent(timeStampIndex: timeStampIndex), time: self.currentTimeStamp(timeStampIndex: self.timeStampIndex), timeZone: self.quote?.exchangeTimezoneShortName, marketStateText: "", subMarketStateText: "", bigPrice: true)
+                                        
+                                        Spacer().frame(height: 10)
+                                        
+                                        Divider()
+                                        
+                                        CustomInformationView(price: nil, priceChange: nil, priceChangePercent: nil, time: nil, timeZone: nil, marketStateText: "CURRENT PRICE", subMarketStateText: "", bigPrice: false)
                                     }
                                 }
                             }
-
+                            
+                            Spacer().frame(height: 10)
+                            Divider()
+                            
                         }
                         .padding()
                         
-                        
+                    }
+                        .background(Color(.systemBackground))
                         
 //MARK: - quote, marketState, currency
-                        
+                        /*
                         VStack(spacing: 0) {
-                            Spacer()
-                                .frame(height: 10)
-                            
                             HStack(alignment: .center, spacing: 0) {
                                 Text("Currency: ")
                                 .foregroundColor(Color(.systemGray))
 
                                 Text(self.quote?.currency ?? "")
                                     .padding(.horizontal, 5)
-
-                                Spacer()//.frame(width: 5)
-                                
-                                Text("Market state: ")
-                                .foregroundColor(Color(.systemGray))
-
-                                Text(self.quote?.marketState?.rawValue ?? "")
-                                    .padding(.horizontal, 10)
-                                    .background(Color(.systemGray5))
-                                    .cornerRadius(5)
-                                .lineLimit(1)
-                                
                             }
                             .font(.footnote)
                             .padding(.horizontal)
-                            
-                            Spacer()
-                                .frame(height: 10)
                         }
+                        */
 
-                        
+                    
 //MARK: - GraphViewUIKit, IndicatorView,
-
-                        VStack(alignment: .center, spacing: 0) {
+                    
+                    VStack(alignment: .center, spacing: 0) {
+                        
+                        ZStack(alignment: .center) {
                             
-                            ZStack(alignment: .center) {
+                            if chartQuote != nil {
                                 
-                                if chartQuote != nil {
-                                    
+                                if chartQuote?.close != nil {
                                     GraphViewUIKit(viewModel: self.viewModel)
                                     
                                     if indicatorViewIsVisible == false {
@@ -297,60 +210,49 @@ struct DetailChartView: View {
                                     if self.viewModel.period.rawValue != self.chartMeta?.range {
                                         
                                         ActivityIndicator(shouldAnimate: .constant(true))
-                                        //Text("Chart not available")
+                                        
                                     }
-                                    
-                                    
-                                    
-                                    
                                 } else {
-                                    ActivityIndicator(shouldAnimate: .constant(true))
-                                    //Text("Chart not available")
+                                    Text("Chart is not available")
                                 }
                                 
-                            }
-                            .frame(height: 180, alignment: .center)
-                            .padding(10)
-                            .onReceive(viewModel.$chart) { chart in
-                                withAnimation(.linear) {
-                                    
-                                }
+                            } else {
+                                ActivityIndicator(shouldAnimate: .constant(true))
                             }
                             
-//MARK: - TimeMarkersView
-                            TimeMarkersView(viewModel: self.viewModel)
-                                .frame(height: 20)
-                                .padding([.leading, .trailing], 10)
-                            
-                            
-//MARK: - Picker
-                            Picker(selection: $viewModel.period, label: Text("")) {
-                                ForEach(0..<self.viewModel.periods.count) { index in
-                                    Text(self.viewModel.periods[index].rawValue.uppercased())
-                                        .tag(self.viewModel.periods[index])
-                                }
-                                .disabled(true)
-                            }
-                            .pickerStyle(SegmentedPickerStyle())
-                            .padding()
                         }
+                        .frame(height: 180, alignment: .center)
+                        .padding(10)
+                        .onReceive(viewModel.$chart) { chart in
+                            withAnimation(.linear) {
+                                
+                            }
+                        }
+                        
+//MARK: - TimeMarkersView
+                        TimeMarkersView(viewModel: self.viewModel)
+                            .frame(height: 20)
+                            .padding([.leading, .trailing], 10)
+                        
+//MARK: - Picker
+                        Picker(selection: $viewModel.period, label: Text("")) {
+                            ForEach(0..<self.viewModel.periods.count) { index in
+                                Text(self.viewModel.periods[index].rawValue.uppercased())
+                                    .tag(self.viewModel.periods[index])
+                            }
+                            .disabled(true)
+                        }
+                        .pickerStyle(SegmentedPickerStyle())
+                        .padding()
                     }
                     .background(Color(.systemBackground))
                     
-                    
-                    
 //MARK: - KeyStatisticsView
                     KeyStatisticsView(viewModel: self.viewModel)
-                        .padding()
                         .background(Color(.systemBackground))
-                    
-                    
                     
                     Spacer()
                         .frame(height: 10)
-                    
-                    
-                    
                     
 //MARK: -  RSS
                     ZStack {
@@ -375,29 +277,24 @@ struct DetailChartView: View {
                         }(), isActive: self.$rssIsActive) // NavigationLink
                             .opacity(0)
                         
-                        
                         VStack(alignment: .leading, spacing: 0) {
                             
-                            HStack(spacing: 0) {
-                                Text("News").font(.title).fontWeight(.bold).foregroundColor(Color(.systemGray2))
-                                Spacer()
-                            }
-                            .padding()
-                            
-                            ForEach(viewModel.rss, id: \.id) {  item in
-                                Button(action: {
-                                    self.rssIsActive = true
-                                    self.viewModel.currentRssUrl = URL(string: item.link)
-                                }) {
-                                    VStack {
-                                        RSSView(item: item)
-                                            .padding([.trailing, .leading, .bottom], 5)
-                                    }
-                                } // Button
-                            }
+                                ForEach(viewModel.rss, id: \.id) {  item in
+                                    Button(action: {
+                                        self.rssIsActive = true
+                                        self.viewModel.currentRssUrl = URL(string: item.link)
+                                    }) {
+                                        VStack {
+                                            RSSView(item: item)
+                                                .padding([.trailing, .leading, .bottom], 5)
+                                        }
+                                    } // Button
+                                }
                         }
                         .background(Color(.systemBackground))
                     }
+                    
+                    Spacer()
                     
                 }
                 .background(Color(UIColor.systemGray5.withAlphaComponent(0.5)))
@@ -518,12 +415,11 @@ struct DetailChartView: View {
     }
     
     
-    
 }
 
 struct DetailChartView_Previews: PreviewProvider {
     static var previews: some View {
         DetailChartView(viewModel: DetailChartViewModel(withJSON: "AAPL")/*, active: .constant(true)*/).environmentObject(MainViewModel(from: "AAPL"))
-        .environment(\.colorScheme, .dark)
+        //.environment(\.colorScheme, .dark)
     }
 }

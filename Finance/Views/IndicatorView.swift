@@ -34,7 +34,8 @@ struct IndicatorView : View {
                     
                     Path { path in
                         
-                        let index = Int(self.positionIndicator * CGFloat(self.viewModel.timeMarkerCount ?? self.timeStamp.count))   //////// FAIL!!!!!!!!!!
+                        let index = Int(self.positionIndicator * CGFloat(self.viewModel.timeMarkerCount ?? self.timeStamp.count))
+
                         if index >= 0 {
                             DispatchQueue.main.async { self.timeStampIndex = index }
                             if index < self.timeStamp.count {
@@ -55,9 +56,6 @@ struct IndicatorView : View {
                 
                 let parterValue = value.location.x / geometry.size.width
                 let divide = (CGFloat(self.timeStamp.count - 1) / CGFloat(self.viewModel.timeMarkerCount ?? self.timeStamp.count))
-                
-                /*let index = Int(self.positionIndicator * CGFloat(self.viewModel.timeMarkerCount ?? self.timeStamp.count))
-                 debugPrint("parterValue = \(parterValue), devide = \(devide), index = \(index), tineMarkCount = \(String(describing: self.viewModel.timeMarkerCount))")*/
                 
                 if parterValue < divide {
                     self.positionIndicator = parterValue

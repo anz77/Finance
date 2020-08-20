@@ -14,7 +14,11 @@ class EditTableViewController: UIViewController {
     @ObservedObject var mainViewModel: MainViewModel
     var symbolsLists: [SymbolsList]
     var symbolsForDeleting: [String] = []
-    var editListsEnabled: Bool = false
+    var editListsEnabled: Bool = false {
+        didSet {
+            addNewListButton.isHidden = !editListsEnabled
+        }
+    }
     
 //MARK: - INIT
     init(mainViewModel: ObservedObject<MainViewModel>) {
@@ -50,11 +54,6 @@ class EditTableViewController: UIViewController {
     }()
     
     @objc func cancel() {
-        
-//        mainViewModel.chartViewModels.forEach{ viewModel in
-//            viewModel.start()
-//        }
-        
         self.dismiss(animated: true) {}
     }
     
@@ -68,12 +67,14 @@ class EditTableViewController: UIViewController {
     }()
     
     
+//MARK: - save new symbols list (delete old viewModels, deleting files from disc storage, dismiss self)
     @objc func save() {
         
         if symbolsLists != mainViewModel.symbolsLists {
             mainViewModel.symbolsLists = symbolsLists
         }
-        
+    
+        // deleting view models
         for symbol in symbolsForDeleting {
             for index in 0..<mainViewModel.chartViewModels.count {
                 if mainViewModel.chartViewModels[index].symbol == symbol {
@@ -83,7 +84,6 @@ class EditTableViewController: UIViewController {
                 }
             }
         }
-        
         
         // deleting files from disc storage
         let files = StorageService.getSymbolsFiles()
@@ -117,6 +117,7 @@ class EditTableViewController: UIViewController {
             
         }
 
+        // changing view model's modes
         self.mainViewModel.symbolsLists.forEach { list in
             list.symbolsArray.forEach { symbol in
                 
@@ -128,9 +129,12 @@ class EditTableViewController: UIViewController {
             }
         }
 
+        // dismissing self
         self.dismiss(animated: true) {}
+        
     }
     
+
     lazy var editListsButton: UIButton = {
         var button = UIButton()
         button.layer.borderColor = UIColor.black.cgColor
@@ -169,6 +173,7 @@ class EditTableViewController: UIViewController {
         button.setTitleColor(UIColor.systemBlue, for: UIControl.State.normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(addNewList), for: UIControl.Event.touchUpInside)
+        button.isHidden = true
         return button
     }()
     
@@ -248,19 +253,19 @@ class EditTableViewController: UIViewController {
         }
         return (keyboardState, newRect)
     }
-    
+
     var oldContentInset: UIEdgeInsets = UIEdgeInsets.zero
     var oldIndicatorInset: UIEdgeInsets = UIEdgeInsets.zero
     var oldOffset: CGPoint = .zero
-    
+
     @objc func keyboardShow(_ notification: Notification) {
-        debugPrint("keyboardShow")
+        //debugPrint("keyboardShow")
         let d = notification.userInfo!
         let (state, rnew) = keyboardState(for: d, in: self.view)
-        debugPrint(state)
+        //debugPrint(state)
 
         if state == .entering {
-            debugPrint(state)
+            //debugPrint(state)
             self.oldOffset = self.tableView.contentOffset
             self.oldContentInset = self.tableView.contentInset
             self.oldIndicatorInset = self.tableView.verticalScrollIndicatorInsets
@@ -271,16 +276,16 @@ class EditTableViewController: UIViewController {
             self.tableView.verticalScrollIndicatorInsets.bottom = h + 100
         }
     }
-    
+
     @objc func keyboardHide(_ notification: Notification) {
-        debugPrint("keyboardHide")
+        //debugPrint("keyboardHide")
 
         let d = notification.userInfo!
         let (state, _) = keyboardState(for: d, in: self.view)
-        debugPrint(state)
+        //debugPrint(state)
 
         if state == .exiting {
-            debugPrint(state)
+            //debugPrint(state)
             self.tableView.contentOffset = self.oldOffset
             self.tableView.verticalScrollIndicatorInsets = self.oldIndicatorInset
             self.tableView.contentInset = self.oldContentInset
@@ -293,10 +298,11 @@ extension EditTableViewController: UITextFieldDelegate {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         guard let text = textField.text else {return true}
-        symbolsLists[textField.tag].name = text
+        symbolsLists[textField.tag - 1].name = text
         textField.resignFirstResponder()
         return true
     }
+    
 }
 
 //MARK: - UITableViewDelegate
@@ -348,6 +354,16 @@ extension EditTableViewController: UITableViewDelegate {
     }
     
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        if editListsEnabled {
+            return 50
+        } else {
+            return 40
+        }
+        
+    }
+    
+    
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 40
     }
@@ -357,23 +373,19 @@ extension EditTableViewController: UITableViewDelegate {
         let headerView = UITableViewHeaderFooterView(reuseIdentifier: "Header")
         
         if !editListsEnabled {
-            let textfield = UITextField()
-            textfield.clearButtonMode = .always
-            textfield.tag = section
-            textfield.translatesAutoresizingMaskIntoConstraints = false
-            textfield.delegate = self
-            textfield.text = self.symbolsLists[section].name
-            headerView.contentView.addSubview(textfield)
-            textfield.borderStyle = .roundedRect
-            //textfield.keyboardAppearance = .dark
-            textfield.returnKeyType = .done
-            textfield.enablesReturnKeyAutomatically = true
-            textfield.autocorrectionType = .no
+            
+            let label = UILabel()
+            label.text = self.symbolsLists[section].name
+            label.translatesAutoresizingMaskIntoConstraints = false
+            headerView.addSubview(label)
+            
             NSLayoutConstraint.activate([
-                textfield.topAnchor.constraint(equalTo: headerView.contentView.topAnchor, constant: 0),
-                textfield.leadingAnchor.constraint(equalTo: headerView.contentView.leadingAnchor, constant: 15),
-                textfield.trailingAnchor.constraint(equalTo: headerView.contentView.trailingAnchor, constant: -15),
-                textfield.heightAnchor.constraint(equalToConstant: 30)
+                
+                label.topAnchor.constraint(equalTo: headerView.contentView.topAnchor, constant: 0),
+                label.leadingAnchor.constraint(equalTo: headerView.contentView.leadingAnchor, constant: 15),
+                label.trailingAnchor.constraint(equalTo: headerView.contentView.trailingAnchor, constant: -15),
+                label.heightAnchor.constraint(equalToConstant: 30),
+                
             ])
             
         }
@@ -395,9 +407,39 @@ extension EditTableViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+                
         let cell = UITableViewCell(style: UITableViewCell.CellStyle.subtitle, reuseIdentifier: "Cell")
+        
         if editListsEnabled {
-            cell.textLabel?.text = symbolsLists[indexPath.row].name
+            
+            // text field
+            let textfield = UITextField()
+            textfield.borderStyle = .roundedRect
+            textfield.textAlignment = .justified
+            textfield.layer.cornerRadius = 15
+            textfield.backgroundColor = .clear
+            textfield.clearButtonMode = .whileEditing
+            textfield.layer.cornerRadius = 10
+            textfield.contentMode = .center
+            textfield.tag = indexPath.row + 1
+            textfield.translatesAutoresizingMaskIntoConstraints = false
+            textfield.delegate = self
+            textfield.text = self.symbolsLists[indexPath.row].name
+            
+            cell.contentView.addSubview(textfield)
+            textfield.borderStyle = .roundedRect
+            textfield.returnKeyType = .done
+            textfield.enablesReturnKeyAutomatically = true
+            textfield.autocorrectionType = .no
+            
+            NSLayoutConstraint.activate([
+                //textfield.topAnchor.constraint(equalTo: cell.contentView.topAnchor, constant: 0),
+                textfield.centerYAnchor.constraint(equalTo: cell.centerYAnchor),
+                textfield.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 15),
+                textfield.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -15),
+                textfield.heightAnchor.constraint(equalToConstant: 40),
+            ])
+            
         } else {
             cell.textLabel?.text = symbolsLists[indexPath.section].symbolsArray[indexPath.row]
         }

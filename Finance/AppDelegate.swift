@@ -13,10 +13,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
 
     let defaultLists = [
-        SymbolsList(name: "EQUITY", symbolsArray: ["AAPL", "NVDA", "FB", "NFLX", "AMZN"], isActive: true),
-        SymbolsList(name: "CRYPTOCURRENCY", symbolsArray: ["BTC-USD", "BTCUSD=X"], isActive: true),
-        SymbolsList(name: "INDEXES", symbolsArray: ["^DJI"], isActive: true),
-        SymbolsList(name: "ANOTHER", symbolsArray: ["UX=F", "UAHRUX=X"], isActive: true)
+        SymbolsList(name: "EQUITIES", symbolsArray: ["AAPL", "GOOG", "FB", "AMZN"], isActive: true),
+        SymbolsList(name: "CRYPTOCURRENCIES", symbolsArray: ["BTC-USD"], isActive: true),
+        //SymbolsList(name: "CURRENCIES", symbolsArray: ["EURUSD=X"], isActive: true),
+        SymbolsList(name: "INDEXES", symbolsArray: ["^DJI", "^GSPC"], isActive: true),
+        //SymbolsList(name: "FUTURES", symbolsArray: ["GC=F"], isActive: true)
     ]
     
     func isAppAlreadyLaunchedOnce() -> Bool {
@@ -25,11 +26,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //defaults.set(true, forKey: "isAppAlreadyLaunchedOnce")
 
         if defaults.string(forKey: "isAppAlreadyLaunchedOnce") != nil {
-            debugPrint("App already launched sometimes")
+            //debugPrint("App already launched sometimes")
             return true
         } else {
             defaults.set(true, forKey: "isAppAlreadyLaunchedOnce")
-            debugPrint("App launched first time")
+            //debugPrint("App launched first time")
             return false
         }
     }
@@ -56,7 +57,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
-
-
+    
 }
 

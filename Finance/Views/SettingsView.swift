@@ -16,6 +16,8 @@ struct SettingsView: View {
         VStack {
             Text("Settings")
                 .font(.title)
+                .fontWeight(.bold)
+                .foregroundColor(Color(.systemGray))
             
             Toggle(isOn: Binding<Bool>(
                 get: {
@@ -27,7 +29,7 @@ struct SettingsView: View {
                     UserDefaults.standard.setValue($0 ? UIUserInterfaceStyle.dark.rawValue : UIUserInterfaceStyle.light.rawValue, forKey: "LastStyle")
             }
             )) {
-                Text("Set Dark Mode")
+                Text("Dark Mode")
             }
         .padding()
             

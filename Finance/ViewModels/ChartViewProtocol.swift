@@ -95,7 +95,7 @@ extension ChartViewProtocol {
     func getChartExtremumsFrom(_ historicalChart: HistoricalChart?) {
         if let quote = historicalChart?.chart?.result?.first??.indicators?.quote?.first {
              
-            if let lowMin = quote.low?.compactMap({$0}).min(), let lowMax = quote.low?.compactMap({$0}).max(), let highMin = quote.high?.compactMap({$0}).min(), let highMax = quote.high?.compactMap({$0}).max(), let openMin = quote.open?.compactMap({$0}).min(), let openMax = quote.open?.compactMap({$0}).max(), let closeMin = quote.close?.compactMap({$0}).min(), let closeMax = quote.close?.compactMap({$0}).max() {
+            if let lowMin = quote?.low?.compactMap({$0}).min(), let lowMax = quote?.low?.compactMap({$0}).max(), let highMin = quote?.high?.compactMap({$0}).min(), let highMax = quote?.high?.compactMap({$0}).max(), let openMin = quote?.open?.compactMap({$0}).min(), let openMax = quote?.open?.compactMap({$0}).max(), let closeMin = quote?.close?.compactMap({$0}).min(), let closeMax = quote?.close?.compactMap({$0}).max() {
                 self.chartExtremums = ChartExtremums(lowMin: lowMin, lowMax: lowMax, highMin: highMin, highMax: highMax, openMin: openMin, openMax: openMax, closeMin: closeMin, closeMax: closeMax)
             }
         }
@@ -154,14 +154,14 @@ extension ChartViewProtocol {
         guard let quote = self.chart?.chart?.result?.first??.indicators?.quote?.first,
             let meta = self.chart?.chart?.result?.first??.meta, let chartPreviousClose = meta.chartPreviousClose else { return 0 }
         
-        if let close = quote.close?[index] {
+        if let close = quote?.close?[index] {
             return close
         } else {
             var nonNullIndex = index
-            while quote.close?[nonNullIndex] == nil || quote.open?[nonNullIndex] == nil || quote.low?[nonNullIndex] == nil || quote.high?[nonNullIndex] == nil {
+            while quote?.close?[nonNullIndex] == nil || quote?.open?[nonNullIndex] == nil || quote?.low?[nonNullIndex] == nil || quote?.high?[nonNullIndex] == nil {
                 nonNullIndex = nonNullIndex - 1
             }
-            return quote.close?[nonNullIndex] ?? chartPreviousClose
+            return quote?.close?[nonNullIndex] ?? chartPreviousClose
         }
     }
     

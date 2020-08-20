@@ -54,6 +54,8 @@ struct StatisticsView: View {
 struct KeyStatisticsView: View {
     @ObservedObject var viewModel: DetailChartViewModel
     
+    //@Binding var keyStatisticsIsVisibe: Bool
+    
     var quote: FundamentalQuote? {
          viewModel.fundamental?.optionChain?.result?.first?.quote ?? nil
     }
@@ -157,42 +159,43 @@ struct KeyStatisticsView: View {
     var body: some View {
         
         VStack(alignment: .leading, spacing: 0) {
-            Text("Key statistics")
-                .font(.title)
-                .fontWeight(.semibold)
-                .padding([.bottom])
-            
-            VStack(alignment: .leading, spacing: 0) {
-                KeyStatisticsRow(title: "Previous close", content: formattedTextForDouble(value: quote?.regularMarketPreviousClose, signed: false))
-            }
-            
-            if quote?.quoteType == "INDEX" {
-                StatisticsView(list: indexList)
-            }
-            
-            if quote?.quoteType == "EQUITY" {
-                StatisticsView(list: equityList)
-            }
-            
-            if quote?.quoteType == "CURRENCY" {
-                StatisticsView(list: currencyList)
-            }
-            
-            if quote?.quoteType == "FUTURE" {
-                StatisticsView(list: futureList)
-            }
-            
-            if quote?.quoteType == "ETF" {
-                StatisticsView(list: etfList)
-            }
-            
-            if quote?.quoteType == "FUND" {
-                StatisticsView(list: fundList)
-            }
-            
-            if quote?.quoteType == "CRYPTOCURRENCY" {
-                StatisticsView(list: cryptocurrencyList)
-            }
+                
+                VStack(alignment: .leading, spacing: 0) {
+                    
+                    VStack(alignment: .leading, spacing: 0) {
+                        KeyStatisticsRow(title: "Previous close", content: formattedTextForDouble(value: quote?.regularMarketPreviousClose, signed: false))
+                    }
+                    
+                    if quote?.quoteType == "INDEX" {
+                        StatisticsView(list: indexList)
+                    }
+                    
+                    if quote?.quoteType == "EQUITY" {
+                        StatisticsView(list: equityList)
+                    }
+                    
+                    if quote?.quoteType == "CURRENCY" {
+                        StatisticsView(list: currencyList)
+                    }
+                    
+                    if quote?.quoteType == "FUTURE" {
+                        StatisticsView(list: futureList)
+                    }
+                    
+                    if quote?.quoteType == "ETF" {
+                        StatisticsView(list: etfList)
+                    }
+                    
+                    if quote?.quoteType == "FUND" {
+                        StatisticsView(list: fundList)
+                    }
+                    
+                    if quote?.quoteType == "CRYPTOCURRENCY" {
+                        StatisticsView(list: cryptocurrencyList)
+                    }
+                }
+                .padding(.horizontal)
+                
         }
     }
     
